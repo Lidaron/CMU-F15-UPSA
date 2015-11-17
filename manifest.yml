@@ -5,12 +5,12 @@ declared-services:
     plan: standard
 applications:
 - services:
-  - concept-insights-standard
-  name: F15-UPSA-Project
+  - cmu-f15-upsa-conceptinsights
+  name: cmu-f15-upsa
   command: node app.js
   path: .
   instances: 2
   memory: 512M
   env:
     NODE_ENV: production
-  host: F15-UPSA-Project
+  host: cmu-f15-upsa
