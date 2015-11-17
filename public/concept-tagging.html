@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AlchemyAPI Concept Tagging | UPSA Project Resources</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" href="images/favicon.ico" />
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="_demo--heading">
+	<div class="_demo--container">
+		<a class="wordmark" href="/">
+			<span class="wordmark--left">UPSA Project</span>
+			<span class="wordmark--right">Book of Spells</span>
+		</a>
+		<nav class="heading-nav">
+			<a class="heading-nav--item" href="/">Concept Insights</a>
+			<a class="heading-nav--item" href="/concept-tagging.html">Concept Tagging</a>
+			<a class="heading-nav--item" href="/taxonomy.html">Taxonomy</a>
+			<a class="heading-nav--item" href="/keywords.html">Keywords</a>
+		</nav>
+	</div>
+</header>
+
+<div class="_demo--input">
+	<div class="_demo--container">
+		<h2 class="base--h2">AlchemyAPI Concept Tagging</h2>
+		<div class="_content--input">
+		  <h3 id="try-this-service" class="base--h3 _content--input-title">Input</h3>
+		  <span class="icon-hyperlink">
+			  <span class="icon icon-reset"></span>
+			  <button class="base--a reset-button" href="" type="reset">Reset</button>
+		  </span>
+		  <div class="input">
+			<div class="input--form">
+			  <div class="input--tab-panels-container">
+				<div class="tab-panels" role="tabpanel">
+				  <ul class="tab-panels--tab-list" role="tablist">
+					<li class="tab-panels--tab-list-item base-li" role="presentation">
+					  <a class="tab-panels--tab base--a active" href="#text-panel" aria-controls="text" role="tab">Body of Text</a>
+					</li>
+				  </ul>
+				  <div class="tab-panels--tab-content">
+					  <a id="sample-1" class="base--a tab-panels--example-link">Example 1</a>
+					  <a id="sample-2" class="base--a tab-panels--example-link">Example 2</a>
+					  <div id="body-of-text" class="keyword--abstract-keyword-textarea base--textarea" contenteditable="true">
+					  </div>
+					  <div class="keyword--abstract-keyword-container">
+						<div class="keyword--abstract-keyword-title">
+						  Top 3 Abstracted Keywords:
+						</div>
+						<div class="keyword--abstract-keyword-list">
+						</div>
+						<span class="icon-hyperlink">
+							<span class="icon icon-code icon-code-disabled"></span>
+							<button id="text-annotator-view-code-btn" class="base--a tab-panels--view-code" href="" onclick="show_text_annotator_response()" type="reset" disabled>
+						  		View JSON
+							</button>
+						</span>
+					  </div>
+					</div>
+				  </div>
+				</div>
+			  </div>
+			</div>
+			<div id="text-panel-API" class="input--API input--json-container">
+			    <pre class="base--pre API--json language-javascript">
+					<code id="text-panel-API-data" class="base--code language-javascript">
+					</code>
+				</pre>
+			</div>
+		  </div>
+		</div>
+		<div class="_content--loading">
+		  <img src="images/loading-indicator.gif" width="100px" alt="">
+		</div>
+	</div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://twitter.github.io/typeahead.js/releases/0.11.1/typeahead.bundle.js"></script>
+<script type="text/javascript" src="js/vendors/_prism.js"></script>
+<script type="text/javascript" src="js/citypeahead.js"></script>
+<script type="text/javascript" src="js/demo-concept-tagging.js"></script>
+
+</body>
+</html>

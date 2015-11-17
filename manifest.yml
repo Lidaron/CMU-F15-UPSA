@@ -1,10 +1,16 @@
+---
+declared-services:
+  concept-insights-standard:
+    label: concept_insights
+    plan: standard
 applications:
-- path: .
-  memory: 256M
-  instances: 1
-  domain: mybluemix.net
-  name: cmu-f15-upsa
-  host: cmu-f15-upsa
-  disk_quota: 1024M
-  services:
-  - cmu-f15-upsa-conceptinsights
+- services:
+  - concept-insights-standard
+  name: F15-UPSA-Project
+  command: node app.js
+  path: .
+  instances: 2
+  memory: 512M
+  env:
+    NODE_ENV: production
+  host: F15-UPSA-Project
