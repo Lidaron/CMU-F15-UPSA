@@ -1,0 +1,10 @@
+applications:
+- path: .
+  memory: 256M
+  instances: 1
+  domain: mybluemix.net
+  name: cmu-f15-upsa
+  host: cmu-f15-upsa
+  disk_quota: 1024M
+  services:
+  - cmu-f15-upsa-conceptinsights
