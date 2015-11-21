@@ -37,7 +37,10 @@
     "express": "~4.13.3",
     "express-rate-limit": "^2.0.2",
     "express-secure-only": "^0.2.1",
+    "googleapis": "^2.1.6",
     "helmet": "^0.14.0",
+    "passport": "^0.3.2",
+    "passport-google-oauth": "^0.2.0",
     "watson-developer-cloud": "^1.0.0-beta.1"
   }
 }

@@ -17,142 +17,35 @@
 'use strict';
 
 var express = require('express'),
-  app = express(),
-  extend = require('util')._extend,
-  watson = require('watson-developer-cloud'),
-  async  = require('async');
+	app = express();
 
-// Bootstrap application settings
+// bootstrap application settings
 require('./config/express')(app);
 
-// if bluemix credentials exists, then override local
-var credentials = extend({
-  username: '***REMOVED***',
-  password: '***REMOVED***',
-  version: 'v2'
-}); // VCAP_SERVICES
+// bind API calls
+require('./apis')(app);
 
-// AlchemyAPI
-var AlchemyAPI = require('./alchemyapi'); 
-var alchemyapi = new AlchemyAPI("***REMOVED***");
-
-var corpus_id = process.env.CORPUS_ID || '/corpora/public/TEDTalks';
-var graph_id  = process.env.GRAPH_ID ||  '/graphs/wikipedia/en-20120601';
-
-// Create the service wrapper
-var conceptInsights = watson.concept_insights(credentials);
-
-app.get('/api/labelSearch', function(req, res, next) {
-  var params = extend({
-    corpus: corpus_id,
-    prefix: true,
-    limit: 10,
-    concepts: true
-  }, req.query);
-
-  conceptInsights.corpora.searchByLabel(params, function(err, results) {
-    if (err)
-      return next(err);
-    else
-      res.json(results);
-  });
+// login
+var passport = require('passport');
+var Google_ClientID = '***REMOVED***';
+var Google_ClientSecret = '***REMOVED***';
+var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+passport.use(new GoogleStrategy({
+	clientID: Google_ClientID,
+	clientSecret: Google_ClientSecret,
+	callbackURL: "https://localhost:3000/auth/google/callback"
+}, function (token, tokenSecret, profile, done) {
+	console.log(profile.id);
+	/* User.findOrCreate({ googleId: profile.id }, function (err, user) {
+		return done(err, user);
+	});*/
+}));
+app.get('/auth/google', passport.authenticate('google', { scope: 'https://www.googleapis.com/auth/plus.login' }));
+app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), function(req, res) {
+	// Successful authentication, redirect home.
+	res.redirect('/');
 });
-
-app.get('/api/conceptualSearch', function(req, res, next) {
-  var params = extend({ corpus: corpus_id, limit: 10 }, req.query);
-  conceptInsights.corpora.getRelatedDocuments(params, function(err, data) {
-    if (err)
-      return next(err);
-    else {
-      async.parallel(data.results.map(getPassagesAsync), function(err, documentsWithPassages) {
-        if (err)
-          return next(err);
-        else{
-          data.results = documentsWithPassages;
-          res.json(data);
-        }
-      });
-    }
-  });
-});
-
-app.post('/api/extractConceptMentions', function(req, res, next) {
-  var params = extend({ graph: graph_id }, req.body);
-  conceptInsights.graphs.annotateText(params, function(err, results) {
-    if (err)
-      return next(err);
-    else
-      res.json(results);
-  });
-});
-
-app.post('/api/alchemyConceptTagging', function(req, res, next) {
-  var params = extend({  }, req.body);
-  alchemyapi.concepts('text', params.text, {}, function (output) { 
-    res.json(output);
-  });
-});
-
-app.post('/api/alchemyKeywords', function(req, res, next) {
-  var params = extend({  }, req.body);
-  alchemyapi.keywords('text', params.text, {}, function (output) { 
-    res.json(output);
-  });
-});
-
-app.post('/api/alchemyTaxonomy', function(req, res, next) {
-  var params = extend({  }, req.body);
-  alchemyapi.taxonomy('text', params.text, {}, function (output) { 
-    res.json(output);
-  });
-});
-
-/**
- * Builds an Async function that get a document and call crop the passages on it.
- * @param  {[type]} doc The document
- * @return {[type]}     The document with the passages
- */
-var getPassagesAsync = function(doc) {
-  return function (callback) {
-    conceptInsights.corpora.getDocument(doc, function(err, fullDoc) {
-      if (err)
-        callback(err);
-      else {
-        doc = extend(doc, fullDoc);
-        doc.explanation_tags.forEach(crop.bind(this, doc));
-        delete doc.parts;
-        callback(null, doc);
-      }
-    });
-  };
-};
-
-/**
- * Crop the document text where the tag is.
- * @param  {Object} doc The document.
- * @param  {Object} tag The explanation tag.
- */
-var crop = function(doc, tag){
-  var textIndexes = tag.text_index;
-  var documentText = doc.parts[tag.parts_index].data;
-
-  var anchor = documentText.substring(textIndexes[0], textIndexes[1]);
-  var left = Math.max(textIndexes[0] - 100, 0);
-  var right = Math.min(textIndexes[1] + 100, documentText.length);
-
-  var prefix = documentText.substring(left, textIndexes[0]);
-  var suffix = documentText.substring(textIndexes[1], right);
-
-  var firstSpace = prefix.indexOf(' ');
-  if ((firstSpace !== -1) && (firstSpace + 1 < prefix.length))
-      prefix = prefix.substring(firstSpace + 1);
-
-  var lastSpace = suffix.lastIndexOf(' ');
-  if (lastSpace !== -1)
-    suffix = suffix.substring(0, lastSpace);
-
-  tag.passage = '...' + prefix + '<b>' + anchor + '</b>' + suffix + '...';
-};
+app.get('/wizards', passport.authenticate('google', { hd: 'andrew.cmu.edu', scope: 'https://www.googleapis.com/auth/plus.login' }));
 
 // error-handler settings
 require('./config/error-handler')(app);
