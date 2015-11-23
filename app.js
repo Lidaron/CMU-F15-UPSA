@@ -30,22 +30,60 @@ var passport = require('passport');
 var Google_ClientID = '***REMOVED***';
 var Google_ClientSecret = '***REMOVED***';
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+
+// Passport session setup.
+//   To support persistent login sessions, Passport needs to be able to
+//   serialize users into and deserialize users out of the session.  Typically,
+//   this will be as simple as storing the user ID when serializing, and finding
+//   the user by ID when deserializing.  However, since this example does not
+//   have a database of user records, the complete Google profile is
+//   serialized and deserialized.
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(obj, done) {
+  done(null, obj);
+});
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 passport.use(new GoogleStrategy({
 	clientID: Google_ClientID,
 	clientSecret: Google_ClientSecret,
-	callbackURL: "https://localhost:3000/auth/google/callback"
+	callbackURL: "http://localhost:3000/auth/google/callback"
 }, function (token, tokenSecret, profile, done) {
-	console.log(profile.id);
-	/* User.findOrCreate({ googleId: profile.id }, function (err, user) {
-		return done(err, user);
-	});*/
-}));
-app.get('/auth/google', passport.authenticate('google', { scope: 'https://www.googleapis.com/auth/plus.login' }));
-app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), function(req, res) {
-	// Successful authentication, redirect home.
+	return done(null, profile);
+})); 
+
+app.get('/', function(req, res){ 
+	res.render('index', { user: req.user }); 
+}); 
+app.get('/auth/google', passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] }));
+app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), function (req, res) {
 	res.redirect('/');
 });
-app.get('/wizards', passport.authenticate('google', { hd: 'andrew.cmu.edu', scope: 'https://www.googleapis.com/auth/plus.login' }));
+app.get('/wizards', ensureAuthenticated, function(req, res){
+  res.render('account', { user: req.user });
+});
+
+app.get('/logout', function (req, res) {
+	req.logout();
+	res.redirect('/');
+});
+
+// Simple route middleware to ensure user is authenticated.
+//   Use this route middleware on any resource that needs to be protected.  If
+//   the request is authenticated (typically via a persistent login session),
+//   the request will proceed.  Otherwise, the user will be redirected to the
+//   login page.
+function ensureAuthenticated(req, res, next) {
+	if (req.isAuthenticated()) { return next(); }
+	console.log("Authentication needed");
+	res.redirect('/auth/google');
+}
+
 
 // error-handler settings
 require('./config/error-handler')(app);

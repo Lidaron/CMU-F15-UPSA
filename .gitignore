@@ -4,3 +4,4 @@ node_modules
 !public/fonts/icon-fonts/README.md
 !public/minjs/README.md
 concept-insights-nodejs/
+npm-debug.log
