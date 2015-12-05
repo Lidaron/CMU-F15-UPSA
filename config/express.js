@@ -18,26 +18,26 @@
 
 // Module dependencies
 var express = require('express'),
-  session = require('express-session'),
-  bodyParser = require('body-parser');
+	session = require('express-session'),
+	bodyParser = require('body-parser');
 
 module.exports = function (app) {
 
-  // Only loaded when SECURE_EXPRESS is `true`
-  if (process.env.SECURE_EXPRESS)
-    require('./security')(app);
+	// Only loaded when SECURE_EXPRESS is `true`
+	if (process.env.SECURE_EXPRESS)
+		require('./security')(app);
 
-  // Configure Express
-  app.set('views', __dirname + '/../views');
-  app.set('view engine', 'ejs');
-  app.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }));
-  app.use(bodyParser.json({ limit: '1mb' }));
-  app.use(session({ 
-    secret: '***REMOVED***',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { }
-  }));
-  app.use(express.static(__dirname + '/../public'));
+	// Configure Express
+	app.set('views', __dirname + '/../views');
+	app.set('view engine', 'ejs');
+	app.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }));
+	app.use(bodyParser.json({ limit: '1mb' }));
+	app.use(session({
+		secret: '***REMOVED***',
+		resave: false,
+		saveUninitialized: true,
+		cookie: {}
+	}));
+	app.use(express.static(__dirname + '/../public'));
 
 };

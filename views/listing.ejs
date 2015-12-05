@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Thought Bot</title>
+	<link href="/css/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+	<header>
+		<div id="app-menu">
+			<div id="app-name"><a href="/">Thought Bot</a></div>
+			<a href="#" class="menu-toggle">Menu</a>
+		</div>
+		<form id="search-form">
+			<input type="text" placeholder="Search" id="search-box" />
+		</form>
+		<div id="utils">
+			<a href="#" id="utils-add">Add</a>
+		</div>
+	</header>
+
+	<div id="main">
+		<section>
+			<h2>Hello, <span><img src="<%= user.picture %>" style="vertical-align: middle;" /> <%= user.displayName %>.</h2>
+		</section>
+		
+<% for (var i = 0 ; i < entries.length; i++) { %>
+<% var entry = entries[i]; %>
+<% var paragraphs = entry.text.split("\n"); %>
+		<section>
+			<div class="datetime">
+				<span class="date"><%= entry.datetime.date %></span><span class="datetime-sep"> at</span><span class="time"> <%= entry.datetime.time %></span>
+			</div>
+			<div class="journal preview">
+				<input type="checkbox" class="more-toggle" id="more-toggle-<%= i %>" />
+				<div class="journal-text">
+<% for (var j = 0 ; j < paragraphs.length; j++) { %>
+					<p><%= paragraphs[j] %></p>
+<% } /* endfor */ %>
+				</div>
+				<div class="journal-links"><label for="more-toggle-<%= i %>" class="more-link link"></label></div>
+			</div>
+			<ul class="suggestions-list">
+<% for (var j = 0 ; j < entry.suggestions.length; j++) { %>
+<% var suggest = entry.suggestions[j]; %>
+				<li class="item">
+					<div class="item-thumb"><a href="#"><img src="" class="item-thumb" /></a></div>
+					<div class="item-content">
+						<div class="title"><a href="<%= suggest.link %>"><%= suggest.title %></a></div>
+						<div class="meta source"><a href="<%= suggest.website %>"><%= suggest.source %></a></div>
+					</div>
+				</li>
+<% } /* endfor */ %>
+			</ul>
+		</section>
+<% } /* endfor */ %>
+
+	</div>
+
+</body>
+</html>

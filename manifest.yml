@@ -7,7 +7,7 @@ applications:
 - services:
   - cmu-f15-upsa-conceptinsights
   name: cmu-f15-upsa
-  command: node app.js
+  command: node server.js
   path: .
   instances: 2
   memory: 512M

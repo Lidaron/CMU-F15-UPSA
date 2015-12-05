@@ -23,50 +23,32 @@ var express = require('express'),
 require('./config/express')(app);
 
 // bind API calls
-require('./apis')(app);
+var Google = require('./config/googleapis');
+var APIs = require('./config/apis')(app);
+var Users = require('./config/users')(app);
 
-// login
-var passport = require('passport');
-var Google_ClientID = '***REMOVED***';
-var Google_ClientSecret = '***REMOVED***';
-var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+app.get('/', function(req, res){
+	if (!req.user) {
+		res.render('index');
+		return;
+	} else if (!req.user.role) {
+		res.render('denied');
+		return;
+	}
 
-// Passport session setup.
-//   To support persistent login sessions, Passport needs to be able to
-//   serialize users into and deserialize users out of the session.  Typically,
-//   this will be as simple as storing the user ID when serializing, and finding
-//   the user by ID when deserializing.  However, since this example does not
-//   have a database of user records, the complete Google profile is
-//   serialized and deserialized.
-passport.serializeUser(function(user, done) {
-  done(null, user);
-});
-
-passport.deserializeUser(function(obj, done) {
-  done(null, obj);
-});
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-passport.use(new GoogleStrategy({
-	clientID: Google_ClientID,
-	clientSecret: Google_ClientSecret,
-	callbackURL: "http://localhost:3000/auth/google/callback"
-}, function (token, tokenSecret, profile, done) {
-	console.log(profile);
-	return done(null, profile);
-})); 
-
-app.get('/', function(req, res){ 
-	res.render('index', { user: req.user }); 
-}); 
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email', 'https://www.googleapis.com/auth/plus.login'] }));
-app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), function (req, res) {
-	res.redirect('/');
+	Google.getJournalEntriesAsync(req.user, function (entries) {
+		res.render('listing', {
+			user: req.user,
+			entries: entries
+		});
+	});
 });
 app.get('/wizards', ensureAuthenticated, function(req, res){
-  res.render('account', { user: req.user });
+	if (!req.user.role) {
+		res.redirect('/');
+		return;
+	}
+	res.render('spellbook', { user: req.user });
 });
 
 app.get('/logout', function (req, res) {
