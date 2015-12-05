@@ -54,13 +54,14 @@ passport.use(new GoogleStrategy({
 	clientSecret: Google_ClientSecret,
 	callbackURL: "http://localhost:3000/auth/google/callback"
 }, function (token, tokenSecret, profile, done) {
+	console.log(profile);
 	return done(null, profile);
 })); 
 
 app.get('/', function(req, res){ 
 	res.render('index', { user: req.user }); 
 }); 
-app.get('/auth/google', passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] }));
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email', 'https://www.googleapis.com/auth/plus.login'] }));
 app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), function (req, res) {
 	res.redirect('/');
 });
