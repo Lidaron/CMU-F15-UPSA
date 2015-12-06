@@ -26,8 +26,8 @@ require('./config/express')(app);
 
 // config
 var Google = require('./config/googleapis');
-var APIs = require('./config/apis')(app);
 var Users = require('./config/users')(app);
+var APIs = require('./config/apis')(app);
 
 app.get('/', function(req, res){
 	if (!req.user) {
@@ -88,7 +88,7 @@ app.post('/compose', function(req, res) {
 });
 
 app.get('/wizards', ensureAuthenticated, function(req, res){
-	if (!req.user.role) {
+	if (!req.user.role || req.user.role !== "admin") {
 		res.redirect('/');
 		return;
 	}
@@ -96,7 +96,7 @@ app.get('/wizards', ensureAuthenticated, function(req, res){
 });
 
 app.get('/wizards/concept-insights', ensureAuthenticated, function(req, res){
-	if (!req.user.role) {
+	if (!req.user.role || req.user.role !== "admin") {
 		res.redirect('/');
 		return;
 	}
@@ -104,7 +104,7 @@ app.get('/wizards/concept-insights', ensureAuthenticated, function(req, res){
 });
 
 app.get('/wizards/concept-tagging', ensureAuthenticated, function(req, res){
-	if (!req.user.role) {
+	if (!req.user.role || req.user.role !== "admin") {
 		res.redirect('/');
 		return;
 	}
@@ -112,7 +112,7 @@ app.get('/wizards/concept-tagging', ensureAuthenticated, function(req, res){
 });
 
 app.get('/wizards/keywords', ensureAuthenticated, function(req, res){
-	if (!req.user.role) {
+	if (!req.user.role || req.user.role !== "admin") {
 		res.redirect('/');
 		return;
 	}
@@ -120,7 +120,7 @@ app.get('/wizards/keywords', ensureAuthenticated, function(req, res){
 });
 
 app.get('/wizards/taxonomy', ensureAuthenticated, function(req, res){
-	if (!req.user.role) {
+	if (!req.user.role || req.user.role !== "admin") {
 		res.redirect('/');
 		return;
 	}

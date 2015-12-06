@@ -29,7 +29,12 @@ var graph_id = process.env.GRAPH_ID || '/graphs/wikipedia/en-20120601';
 module.exports = ThoughtAPIs;
 
 function ThoughtAPIs(app) {
-	app.get('/api/labelSearch', function (req, res, next) {
+	app.get('/api/labelSearch', ensureAuthenticated, function (req, res, next) {
+		if (!req.user.role || req.user.role !== "admin") {
+			res.redirect('/');
+			return;
+		}
+
 		var params = extend({ corpus: corpus_id, prefix: true, limit: 10, concepts: true }, req.query);
 		conceptInsights.corpora.searchByLabel(params, function (err, results) {
 			if (err) {
@@ -40,7 +45,12 @@ function ThoughtAPIs(app) {
 		});
 	});
 
-	app.get('/api/conceptualSearch', function (req, res, next) {
+	app.get('/api/conceptualSearch', ensureAuthenticated, function (req, res, next) {
+		if (!req.user.role || req.user.role !== "admin") {
+			res.redirect('/');
+			return;
+		}
+
 		var params = extend({ corpus: corpus_id, limit: 10 }, req.query);
 		conceptInsights.corpora.getRelatedDocuments(params, function (err, data) {
 			if (err) return next(err);
@@ -52,7 +62,12 @@ function ThoughtAPIs(app) {
 		});
 	});
 
-	app.post('/api/extractConceptMentions', function (req, res, next) {
+	app.post('/api/extractConceptMentions', ensureAuthenticated, function (req, res, next) {
+		if (!req.user.role || req.user.role !== "admin") {
+			res.redirect('/');
+			return;
+		}
+
 		var params = extend({ graph: graph_id }, req.body);
 		conceptInsights.graphs.annotateText(params, function (err, results) {
 			if (err) { return next(err); }
@@ -60,21 +75,36 @@ function ThoughtAPIs(app) {
 		});
 	});
 
-	app.post('/api/alchemyConceptTagging', function (req, res, next) {
+	app.post('/api/alchemyConceptTagging', ensureAuthenticated, function (req, res, next) {
+		if (!req.user.role || req.user.role !== "admin") {
+			res.redirect('/');
+			return;
+		}
+
 		var params = extend({}, req.body);
 		alchemyapi.concepts('text', params.text, {}, function (output) {
 			res.json(output);
 		});
 	});
 
-	app.post('/api/alchemyKeywords', function (req, res, next) {
+	app.post('/api/alchemyKeywords', ensureAuthenticated, function (req, res, next) {
+		if (!req.user.role || req.user.role !== "admin") {
+			res.redirect('/');
+			return;
+		}
+
 		var params = extend({}, req.body);
 		alchemyapi.keywords('text', params.text, {}, function (output) {
 			res.json(output);
 		});
 	});
 
-	app.post('/api/alchemyTaxonomy', function (req, res, next) {
+	app.post('/api/alchemyTaxonomy', ensureAuthenticated, function (req, res, next) {
+		if (!req.user.role || req.user.role !== "admin") {
+			res.redirect('/');
+			return;
+		}
+
 		var params = extend({}, req.body);
 		alchemyapi.taxonomy('text', params.text, {}, function (output) {
 			res.json(output);
@@ -125,3 +155,16 @@ var crop = function (doc, tag) {
 
 	tag.passage = '...' + prefix + '<b>' + anchor + '</b>' + suffix + '...';
 };
+
+
+// Simple route middleware to ensure user is authenticated.
+//   Use this route middleware on any resource that needs to be protected.  If
+//   the request is authenticated (typically via a persistent login session),
+//   the request will proceed.  Otherwise, the user will be redirected to the
+//   login page.
+function ensureAuthenticated(req, res, next) {
+	if (req.isAuthenticated()) { return next(); }
+	console.log("Authentication needed");
+	req.session.redirectUrl = req.url;
+	res.redirect('/auth/google');
+}
