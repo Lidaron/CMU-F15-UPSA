@@ -1,0 +1,89 @@
+body {
+	margin: 0;
+	background: #fff;
+	transition-duration: 0.5s;
+}
+
+header {
+	display: none;
+}
+
+#composer {
+	position: relative;
+	margin: 0;
+	background: #fff;
+	box-sizing: border-box;
+	border-radius: 2px;
+	overflow: hidden;
+	padding: 76px 16px;
+	transition-duration: 0.5s;
+}
+
+#composer-page {
+	font-size: 16px;
+	line-height: 28px;
+	min-height: 800px;
+}
+
+#composer-page p {
+	margin: 0;
+}
+
+#composer-header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	padding: 4px;
+	background: rgba(255,255,255,0.65);
+}
+
+#composer-header a,
+#composer-header .link {
+	display: block;
+	width: 48px;
+	height: 48px;
+	text-indent: -999999px;
+}
+
+#composer-header .discard-link {
+	float: left;
+	background: url(/img/icon-close.svg);
+	background-size: cover;
+}
+
+#composer-header .submit-link {
+	background: url(/img/icon-complete.svg);
+	background-size: cover;
+	float: right;
+	border: 0;
+}
+
+
+@media screen and (min-width: 700px) {
+	body {
+		margin: 96px 0;
+		background: #fafafa;
+	}
+
+	header {
+		display: block;
+	}
+	
+	#composer {
+		margin: 16px;
+		border: 1px solid rgba(0,0,0,0.12);
+		padding: 92px 80px;
+	}
+
+	#composer-header {
+		position: absolute;
+		padding: 12px;
+	}
+
+	#composer-page {
+		font-size: 20px;
+		line-height: 36px;
+		min-height: 800px;
+	}
+}

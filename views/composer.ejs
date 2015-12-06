@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Compose New | Food for Thought</title>
+	<link href="/css/style.css" rel="stylesheet" type="text/css" />
+	<link href="/css/composer.css" rel="stylesheet" type="text/css" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body class="fullpage">
+
+	<header>
+		<input type="checkbox" id="search-toggle" />
+		<div id="app-nav" tabindex="0">
+			<div id="app-menu" tabindex="0">
+				<label for="nav" class="menu-link link">Menu</label>
+				<div id="nav">
+					<div class="nav-header">
+						<label for="app-nav" class="menu-link link">Close Menu</label>
+						<div class="app-name"><a href="/">Food for Thought</a></div>
+					</div>
+					<div class="user-profile">
+						<div class="user-picture"><img src="<%= user.picture %>" /></div>
+						<div class="user-info">
+							<div class="user-name"><%= user.displayName %><%= user.role === "admin" ? " (admin)" : "" %></div>
+							<div class="user-email"><%= user.email %></div>
+							<div class="user-actions"><a href="/logout">Logout</a></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="app-name"><a href="/">Food for Thought</a></div>
+		</div>
+	</header>
+
+	<div id="main">
+		<form id="composer" method="post" action="/compose">
+			<div id="composer-header">
+				<a href="/" id="composer-discard" class="discard-link">Discard</a>
+				<button type="button" id="composer-submit" class="submit-link link">Submit</button>
+			</div>
+			<div id="composer-page" contenteditable="true">
+				<p></p>
+			</div>
+			<input type="hidden" id="composer-text" name="journal" />
+		</form>
+	</div>
+
+	<script>
+		var form = document.getElementById("composer");
+		var discard = document.getElementById("composer-discard");
+		var btn = document.getElementById("composer-submit");
+		var html = document.getElementById("composer-page");
+		var text = document.getElementById("composer-text");
+		btn.addEventListener("click", function (e) {
+			e.preventDefault();
+			text.value = html.innerText;
+			form.submit();
+		});
+		discard.addEventListener("click", function (e) {
+			if (html.innerText.length < 10) return;
+			if (confirm("Are you sure you want to discard this entry?")) return;
+			e.preventDefault();
+		});
+		html.focus();
+	</script>
+</body>
+</html>

@@ -1,28 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Thought Bot</title>
+	<title>Access Denied | Food for Thought</title>
 	<link href="/css/style.css" rel="stylesheet" type="text/css" />
+	<link href="/css/intro.css" rel="stylesheet" type="text/css" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
-<body>
+<body class="fullpage">
 
 	<header>
-		<div id="app-menu">
-			<div id="app-name"><a href="/">Thought Bot</a></div>
-			<a href="#" class="menu-toggle">Menu</a>
-		</div>
-		<form id="search-form">
-			<input type="text" placeholder="Search" id="search-box" />
-		</form>
-		<div id="utils">
-			<a href="#" id="utils-add">Add</a>
+		<input type="checkbox" id="search-toggle" />
+		<div id="app-nav" tabindex="0">
+			<div id="app-menu" tabindex="0">
+				<label for="nav" class="menu-link link">Menu</label>
+				<div id="nav">
+					<div class="nav-header">
+						<label for="app-nav" class="menu-link link">Close Menu</label>
+						<div class="app-name"><a href="/">Food for Thought</a></div>
+					</div>
+					<div class="user-profile">
+						<div class="user-picture"><img src="<%= user.picture %>" /></div>
+						<div class="user-info">
+							<div class="user-name"><%= user.displayName %><%= user.role === "admin" ? " (admin)" : "" %></div>
+							<div class="user-email"><%= user.email %></div>
+							<div class="user-actions"><a href="/logout">Logout</a></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="app-name"><a href="/">Food for Thought</a></div>
 		</div>
 	</header>
 
 	<div id="main">
-		<section>
+		<div id="intro">
 			<h2>Sorry, your account is not authorized to use this service.</h2>
-		</section>
+		</div>
 	</div>
 
 </body>

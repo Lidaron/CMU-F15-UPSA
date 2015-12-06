@@ -13,8 +13,63 @@ var users = {
 		identities: [ "***REMOVED***" ],
 		displayName: "Paul Goodwin",
 		role: "admin",
-	}
+	},
+	'***REMOVED***': {
+		identities: [ '***REMOVED***','***REMOVED***' ],
+		displayName: "***REMOVED***",
+		role: "user",
+	},
+	'***REMOVED***': { 
+		identities: ['***REMOVED***', '***REMOVED***'],
+		displayName: "***REMOVED***",
+		role: "user",
+	},
+	'***REMOVED***': { 
+		identities: ['***REMOVED***', '***REMOVED***'],
+		displayName: "***REMOVED***",
+		role: "user",
+	},
+	'***REMOVED***': { 
+		identities: ['***REMOVED***'],
+		displayName: "***REMOVED***",
+		role: "user",
+	},
+	'***REMOVED***': { 
+		identities: ['***REMOVED***', '***REMOVED***'],
+		displayName: "***REMOVED***",
+		role: "user",
+	},
+	'***REMOVED***': { 
+		identities: ['***REMOVED***', '***REMOVED***'],
+		displayName: "***REMOVED***",
+		role: "user",
+	},
+	'***REMOVED***': { 
+		identities: ['***REMOVED***', '***REMOVED***'],
+		displayName: "***REMOVED***",
+		role: "user",
+	},
+	'***REMOVED***': { 
+		identities: ['***REMOVED***', '***REMOVED***'],
+		displayName: "***REMOVED***",
+		role: "user",
+	},
+	'***REMOVED***': { 
+		identities: ['***REMOVED***', '***REMOVED***'],
+		displayName: "***REMOVED***",
+		role: "user",
+	},
+	'***REMOVED***': { 
+		identities: ['***REMOVED***', '***REMOVED***'],
+		displayName: "***REMOVED***",
+		role: "user",
+	},
 };
+
+var baseurl = "https://cmu-f15-upsa.mybluemix.net";
+if (process.env.NODE_ENV !== 'production') {
+	baseurl = "http://localhost:3000";
+}
 
 // login
 var passport = require('passport');
@@ -48,18 +103,22 @@ function Users(app) {
 	passport.use(new GoogleStrategy({
 		clientID: Google_ClientID,
 		clientSecret: Google_ClientSecret,
-		callbackURL: "http://localhost:3000/auth/google/callback"
+		callbackURL: baseurl + "/auth/google/callback"
 	}, function (token, tokenSecret, profile, done) {
 		var andrewId = getAndrewId(profile.emails);
 		var user = {
 			id: profile.id,
 			andrewId: andrewId,
+			email: andrewId + "@andrew.cmu.edu",
 			name: profile.name,
 			displayName: profile.displayName,
-			picture: profile.photos[0].value,
+			picture: "",
 			identities: [ andrewId + "@andrew.cmu.edu" ],
 			role: null
 		};
+		if (profile.photos.length > 0) {
+			user.picture = profile.photos[0].value;
+		}
 		if (andrewId && andrewId in users) {
 			user.identities = users[andrewId].identities;
 			user.role = users[andrewId].role;
@@ -73,11 +132,23 @@ function Users(app) {
 		scope: ['profile', 'email', 'https://www.googleapis.com/auth/plus.login'],
 		hd: "andrew.cmu.edu"
 	}));
-	app.get('/auth/google/callback', passport.authenticate('google', {
-		failureRedirect: '/login',
-		hd: "andrew.cmu.edu"
-	}), function (req, res) {
-		res.redirect('/');
+	app.get('/auth/google/callback', function(req, res, next) {
+		passport.authenticate('google', function (err, user, info) {
+			var redirectUrl = '/';
+	
+			if (err) { return next(err); }
+			if (!user) { return res.redirect('/'); }
+	
+			if (req.session.redirectUrl) {
+				redirectUrl = req.session.redirectUrl;
+				req.session.redirectUrl = null;
+			}
+
+			req.logIn(user, function(err){
+				if (err) { return next(err); }
+			});
+			res.redirect(redirectUrl);
+		})(req, res, next);;
 	});
 }
 

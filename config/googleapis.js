@@ -1,3 +1,8 @@
+var baseurl = "https://cmu-f15-upsa.mybluemix.net";
+if (process.env.NODE_ENV !== 'production') {
+	baseurl = "http://localhost:3000";
+}
+
 var url = require('url');
 var dateFormat = require('dateformat');
 
@@ -16,7 +21,7 @@ jwtClient.authorize(function (err, tokens) {
 	
 	var Google_ClientID = '***REMOVED***';
 	var Google_ClientSecret = '***REMOVED***';
-	var oauth2Client = new google.auth.OAuth2(Google_ClientID, Google_ClientSecret, "http://localhost:3000/auth/google/callback"); 
+	var oauth2Client = new google.auth.OAuth2(Google_ClientID, Google_ClientSecret, baseurl + "/auth/google/callback"); 
 	oauth2Client.setCredentials({
 		access_token: tokens.access_token,
 		refresh_token: tokens.refresh_token
@@ -94,7 +99,7 @@ function getJournalEntriesAsync(user, callback) {
 		for (var i = 0; i < res.length; i++) {
 			var entry = res[i];
 
-			if (user.role !== 'admin' && user.identities.indexOf(entry.emailaddress) < 0) {
+			if (user.identities.indexOf(entry.emailaddress) < 0) {
 				continue;
 			}
 

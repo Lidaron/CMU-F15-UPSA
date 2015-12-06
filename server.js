@@ -19,10 +19,12 @@
 var express = require('express'),
 	app = express();
 
+var FormData = require('form-data');
+
 // bootstrap application settings
 require('./config/express')(app);
 
-// bind API calls
+// config
 var Google = require('./config/googleapis');
 var APIs = require('./config/apis')(app);
 var Users = require('./config/users')(app);
@@ -43,17 +45,99 @@ app.get('/', function(req, res){
 		});
 	});
 });
+
+app.get('/compose', function(req, res){
+	if (!req.user || !req.user.role) {
+		res.redirect('/');
+		return;
+	}
+
+	res.render('composer', {
+		user: req.user
+	});
+});
+
+app.post('/compose', function(req, res) {
+	if (!req.user || !req.user.role) {
+		res.redirect('/');
+		return;
+	}
+	
+	var text = req.body.journal;
+	if (!text) {
+		res.render('composer', {
+			user: req.user,
+			draft: text
+		});
+	}
+
+	var form = new FormData();
+	form.append('entry.458172453', req.user.email);
+	form.append('entry.1465035853', '');
+	form.append('entry.1727190044', 'Development Web App');
+	form.append('entry.1182892926', text);
+	form.submit('https://docs.google.com/a/andrew.cmu.edu/forms/d/***REMOVED***/formResponse', function (err2, res2) {
+		if (err2) {
+			console.log(err2);
+			return;
+		}
+
+		console.log(res2.statusCode);
+		res.redirect('/');
+	});
+});
+
 app.get('/wizards', ensureAuthenticated, function(req, res){
 	if (!req.user.role) {
 		res.redirect('/');
 		return;
 	}
-	res.render('spellbook', { user: req.user });
+	res.redirect('/wizards/concept-insights');
+});
+
+app.get('/wizards/concept-insights', ensureAuthenticated, function(req, res){
+	if (!req.user.role) {
+		res.redirect('/');
+		return;
+	}
+	res.render('spell-conceptinsights', { user: req.user });
+});
+
+app.get('/wizards/concept-tagging', ensureAuthenticated, function(req, res){
+	if (!req.user.role) {
+		res.redirect('/');
+		return;
+	}
+	res.render('spell-concepttagging', { user: req.user });
+});
+
+app.get('/wizards/keywords', ensureAuthenticated, function(req, res){
+	if (!req.user.role) {
+		res.redirect('/');
+		return;
+	}
+	res.render('spell-keywords', { user: req.user });
+});
+
+app.get('/wizards/taxonomy', ensureAuthenticated, function(req, res){
+	if (!req.user.role) {
+		res.redirect('/');
+		return;
+	}
+	res.render('spell-taxonomy', { user: req.user });
 });
 
 app.get('/logout', function (req, res) {
 	req.logout();
 	res.redirect('/');
+});
+
+app.get('/login-error', function (req, res) {
+	if (!req.user) {
+		res.redirect('/');
+		return;
+	}
+	res.render('login-error');
 });
 
 // Simple route middleware to ensure user is authenticated.
@@ -64,6 +148,7 @@ app.get('/logout', function (req, res) {
 function ensureAuthenticated(req, res, next) {
 	if (req.isAuthenticated()) { return next(); }
 	console.log("Authentication needed");
+	req.session.redirectUrl = req.url;
 	res.redirect('/auth/google');
 }
 
