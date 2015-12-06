@@ -156,6 +156,6 @@ function ensureAuthenticated(req, res, next) {
 // error-handler settings
 require('./config/error-handler')(app);
 
-var port = process.env.VCAP_APP_PORT || 3000;
+var port = process.env.port || 3000;
 app.listen(port);
 console.log('listening at:', port);
