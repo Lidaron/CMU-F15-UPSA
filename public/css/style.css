@@ -320,7 +320,7 @@ section .suggestions-list .item-thumb img {
 	width: 56px;
 	height: 56px;
 	display: block;
-	background: red;
+	background: #414141;
 	border: 0;
 }
 

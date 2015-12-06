@@ -99,9 +99,10 @@ function getJournalEntriesAsync(user, callback) {
 		for (var i = 0; i < res.length; i++) {
 			var entry = res[i];
 
-			if (user.identities.indexOf(entry.emailaddress) < 0) {
+			if (typeof entry.exclude === "string")
 				continue;
-			}
+			if (user.identities.indexOf(entry.emailaddress) < 0)
+				continue;
 
 			var suggestions = [];
 			if (typeof entry.foodforthought1 === "string")
