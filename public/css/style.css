@@ -15,6 +15,7 @@ header {
 	z-index: 49;
 	border-bottom: 1px solid rgba(0,0,0,0.12);
 	background: #fafafa;
+	transition-duration: 0.5s;
 }
 
 header,
@@ -163,6 +164,8 @@ a:hover, label.link:hover {
 }
 
 #utils-search {
+	display: none;
+	
 	background: url(/img/icon-search-button.svg) 0 0;
 	background-size: cover;
 	text-indent: -999999px;

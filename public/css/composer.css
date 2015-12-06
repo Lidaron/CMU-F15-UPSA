@@ -5,11 +5,10 @@ body {
 }
 
 header {
-	display: none;
+	top: -56px;
 }
 
 #composer {
-	position: relative;
 	margin: 0;
 	background: #fff;
 	box-sizing: border-box;
@@ -22,7 +21,7 @@ header {
 #composer-page {
 	font-size: 16px;
 	line-height: 28px;
-	min-height: 800px;
+	min-height: 600px;
 }
 
 #composer-page p {
@@ -67,7 +66,7 @@ header {
 	}
 
 	header {
-		display: block;
+		top: 0;
 	}
 	
 	#composer {
@@ -77,8 +76,10 @@ header {
 	}
 
 	#composer-header {
-		position: absolute;
+		position: static;
+		margin: -93px -81px 21px -81px;
 		padding: 12px;
+		height: 48px;
 	}
 
 	#composer-page {
