@@ -1,4 +1,4 @@
-var baseurl = "https://cmu-f15-upsa.mybluemix.net";
+var baseurl = "https://cmu-f15-upsa.azurewebsites.net";
 if (process.env.NODE_ENV !== 'production') {
 	baseurl = "http://localhost:3000";
 }
