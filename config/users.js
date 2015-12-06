@@ -66,7 +66,7 @@ var users = {
 	},
 };
 
-var baseurl = "https://cmu-f15-upsa.azurewebsites.net";
+var baseurl = "https://thoughtagent.azurewebsites.net";
 if (process.env.NODE_ENV !== 'production') {
 	baseurl = "http://localhost:3000";
 }

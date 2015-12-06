@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://hub.jazz.net/git/blx/cmu-f15-upsa"
+    "url": "https://github.com/Lidaron/cmu-f15-upsa"
   },
   "author": "CMU F15 UPSA",
   "contributors": [
@@ -18,10 +18,10 @@
   ],
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://hub.jazz.net/git/blx/cmu-f15-upsa/issues"
+    "url": "https://github.com/Lidaron/cmu-f15-upsa/issues"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node app.js"
   },
   "dependencies": {
     "async": "~1.5.0",
