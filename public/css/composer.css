@@ -1,11 +1,14 @@
 body {
 	margin: 0;
 	background: #fff;
-	transition-duration: 0.5s;
 }
 
 header {
 	top: -56px;
+}
+
+#main {
+	margin: 0;
 }
 
 #composer {
@@ -61,12 +64,15 @@ header {
 
 @media screen and (min-width: 700px) {
 	body {
-		margin: 96px 0;
 		background: #fafafa;
 	}
 
 	header {
 		top: 0;
+	}
+	
+	#main {
+		margin: 96px auto;
 	}
 	
 	#composer {

@@ -1,7 +1,29 @@
 @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,600italic,400italic,700,700italic,300,300italic);
 
+.preload * {
+	-webkit-transition: none !important;
+	-moz-transition: none !important;
+	-o-transition: none !important;
+	transition: none !important;
+}
+
+* {
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	-moz-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+::selection {
+	background: #4d73ff;
+	color: #fff;
+}
+
+::-moz-selection {
+	background: #4d73ff;
+	color: #fff;
+}
+
 body {
-	margin: 80px 0;
+	margin: 0;
 	font: 14px/24px "Source Sans Pro", Helvetica, Arial, sans-serif;
 	color: #616161;
 	background: #fafafa;
@@ -12,7 +34,7 @@ header {
 	top: 0;
 	left: 0;
 	right: 0;
-	z-index: 49;
+	z-index: 48;
 	border-bottom: 1px solid rgba(0,0,0,0.12);
 	background: #fafafa;
 	transition-duration: 0.5s;
@@ -56,6 +78,7 @@ a:hover, label.link:hover {
 	position: fixed;
 	top: 0;
 	left: 0;
+	z-index: 49;
 	width: 230px;
 	background: #fff;
 	box-shadow: 0 0 15px #616161;
@@ -228,8 +251,9 @@ a:hover, label.link:hover {
 /* Page */
 
 #main {
-	margin: 0 auto;
+	margin: 80px auto;
 	max-width: 768px;
+	transition-duration: 0.5s;
 }
 
 section {
@@ -374,10 +398,6 @@ section.prompt p {
 }
 
 @media screen and (min-width: 700px) {
-	body {
-		margin: 96px 0;
-	}
-
 	header,
 	#nav .nav-header {
 		height: 48px;
@@ -407,6 +427,10 @@ section.prompt p {
 	#utils-search {
 		visibility: hidden;
 		opacity: 0;
+	}
+
+	#main {
+		margin: 96px auto;
 	}
 
 	section {

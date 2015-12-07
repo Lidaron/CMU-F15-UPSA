@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html class="preload">
 <head>
 	<title>Compose New | Food for Thought</title>
+	<link href="/css/waves.css" rel="stylesheet" type="text/css" />
 	<link href="/css/style.css" rel="stylesheet" type="text/css" />
 	<link href="/css/composer.css" rel="stylesheet" type="text/css" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+	<meta name="msapplication-tap-highlight" content="no" />
+	<script type="text/javascript" src="/js/waves.js"></script>
+	<script type="text/javascript" src="/js/main.js"></script>
 </head>
 <body class="fullpage">
 
@@ -61,7 +65,11 @@
 			if (confirm("Are you sure you want to discard this entry?")) return;
 			e.preventDefault();
 		});
-		html.focus();
+		window.addEventListener("load", function () {
+			var x = window.scrollX, y = window.scrollY;
+			html.focus();
+			window.scrollTo(x, y);
+		});
 	</script>
 </body>
 </html>
