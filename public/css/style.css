@@ -340,12 +340,14 @@ section .suggestions-list .item-thumb {
 	float: left;
 }
 
-section .suggestions-list .item-thumb img {
+section .suggestions-list .item-thumb a {
 	width: 56px;
 	height: 56px;
 	display: block;
-	background: #414141;
 	border: 0;
+	background-color: #fafafa;
+	background-size: cover;
+	background-position: center;
 }
 
 section .suggestions-list .item {

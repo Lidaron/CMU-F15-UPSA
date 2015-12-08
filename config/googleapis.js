@@ -3,6 +3,16 @@ if (process.env.NODE_ENV !== 'production') {
 	baseurl = "http://localhost:3000";
 }
 
+var request = require('request');
+var cheerio = require('cheerio');
+
+var ImageResolver = require('image-resolver/src/ImageResolver');
+var resolver = new ImageResolver();
+resolver.register(new ImageResolver.FileExtension());
+resolver.register(new ImageResolver.MimeType());
+resolver.register(new ImageResolver.Opengraph());
+resolver.register(new ImageResolver.Webpage());
+
 var url = require('url');
 var dateFormat = require('dateformat');
 
@@ -46,21 +56,56 @@ jwtClient.authorize(function (err, tokens) {
 -------------------------------------------------- */
 module.exports = {
 	api: google,
-	getJournalEntriesAsync: getJournalEntriesAsync
+	getJournalEntriesAsync: getJournalEntriesAsync,
+	updateCacheAsync: updateCacheAsync
 };
 
+var links = {};
+
+var cache = null;
+var cacheTimestamp = new Date();
+
 function getSuggestionDetails(link) {
-	var parsed = url.parse(link);
-	var source = parsed.hostname;
+	if (link in links) {
+		return links[link];
+	}
+
+	var urlOpts = url.parse(link);
+	var source = urlOpts.hostname;
 	if (source.indexOf("www.") === 0) {
 		source = source.slice(4);
 	}
-	return {
-		title: "Lorem ipsum sit dolor amet",
+
+	links[link] = {
+		title: "(Thought Bot is parsing this article...)",
 		link: link,
 		source: source,
-		website: parsed.protocol + "//" + parsed.host + "/"
+		website: urlOpts.protocol + "//" + urlOpts.host + "/",
+		image: ""
 	};
+
+	request(link, function (error, response, body) {
+		links[link].title = "Article at " + source;
+		if (!error && response.statusCode == 200) {
+			var $ = cheerio.load(body);
+
+			var $title = $("title");
+			if ($title.length === 0) return;
+
+			var title = $title.text();
+			if (title === "") return;
+			
+			links[link].title = title;
+		}
+	});
+	
+	resolver.resolve(link, function(result){
+		if (result) {
+			links[link].image = result.image;
+		}
+	});
+	
+	return links[link];
 }
 
 function getDateTime(now, timestamp) {
@@ -84,9 +129,34 @@ function getDateTime(now, timestamp) {
 	};
 }
 
+function filterJournalEntries(user) {
+	var entries = [];
+	for (var i = 0; i < cache.length; i++) {
+		if (user.identities.indexOf(entries.emailaddress) < 0)
+			continue;
+		entries[entries.length] = cache[i];
+	}
+	return entries;
+}
+
 function getJournalEntriesAsync(user, callback) {
 	var now = new Date();
-	
+
+	if (cache !== null && cacheTimestamp.getTime() + 300000 >= now.getTime()) {
+		var entries = filterJournalEntries(user);
+		callback(entries);
+		return;
+	}
+
+	updateCacheAsync(function () {
+		var entries = filterJournalEntries(user);
+		callback(entries);
+	});
+}
+
+function updateCacheAsync(callback) {
+	var now = new Date();
+
 	responses.rows({
 		start: 1
 	}, function(err, res) {
@@ -95,28 +165,31 @@ function getJournalEntriesAsync(user, callback) {
 			return;
 		}
 
-		var entries = [];
+		cache = [];
+		cacheTimestamp = now;
+
 		for (var i = 0; i < res.length; i++) {
 			var entry = res[i];
 
 			if (typeof entry.exclude === "string")
 				continue;
-			if (user.identities.indexOf(entry.emailaddress) < 0)
-				continue;
+
+			var plates = [
+				entry.foodforthought1,
+				entry.foodforthought2,
+				entry.foodforthought3,
+				entry.foodforthought4,
+				entry.foodforthought5
+			];
 
 			var suggestions = [];
-			if (typeof entry.foodforthought1 === "string")
-				suggestions.push(getSuggestionDetails(entry.foodforthought1));
-			if (typeof entry.foodforthought2 === "string")
-				suggestions.push(getSuggestionDetails(entry.foodforthought2));
-			if (typeof entry.foodforthought3 === "string")
-				suggestions.push(getSuggestionDetails(entry.foodforthought3));
-			if (typeof entry.foodforthought4 === "string")
-				suggestions.push(getSuggestionDetails(entry.foodforthought4));
-			if (typeof entry.foodforthought5 === "string")
-				suggestions.push(getSuggestionDetails(entry.foodforthought5));
+			for (var j = 0; j < plates.length; j++) {
+				if (typeof plates[j] === "string") {
+					suggestions.push(getSuggestionDetails(plates[j]));
+				}
+			}
 
-			entries.unshift({
+			cache.unshift({
 				emailaddress: entry.emailaddress,
 				datetime: getDateTime(now, entry.timestamp),
 				text: entry.whatsonyourmind,
@@ -124,7 +197,7 @@ function getJournalEntriesAsync(user, callback) {
 			});
 		}
 
-		console.log(entries);
-		callback(entries);
+		console.log(cache);
+		callback();
 	});
 }

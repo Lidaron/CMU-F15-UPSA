@@ -83,7 +83,9 @@ app.post('/compose', function(req, res) {
 		}
 
 		console.log(res2.statusCode);
-		res.redirect('/');
+		Google.updateCacheAsync(function () {
+			res.redirect('/');
+		});
 	});
 });
 

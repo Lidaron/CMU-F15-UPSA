@@ -71,7 +71,7 @@
 <% for (var j = 0 ; j < entry.suggestions.length; j++) { %>
 <% var suggest = entry.suggestions[j]; %>
 				<li class="item">
-					<div class="item-thumb"><a href="#"><img src="" class="item-thumb" /></a></div>
+					<div class="item-thumb"><a href="<%= suggest.link %>" style="background-image: url(<%= suggest.image %>);"></a></div>
 					<div class="item-content">
 						<div class="title"><a href="<%= suggest.link %>"><%= suggest.title %></a></div>
 						<div class="meta source"><a href="<%= suggest.website %>"><%= suggest.source %></a></div>
