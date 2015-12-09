@@ -5,7 +5,7 @@
 	<link href="/css/waves.css" rel="stylesheet" type="text/css" />
 	<link href="/css/style.css" rel="stylesheet" type="text/css" />
 	<link href="/css/intro.css" rel="stylesheet" type="text/css" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, target-densityDpi=device-dpi" />
 	<meta name="msapplication-tap-highlight" content="no" />
 	<script type="text/javascript" src="/js/waves.js"></script>
 	<script type="text/javascript" src="/js/main.js"></script>
@@ -13,13 +13,12 @@
 <body class="fullpage">
 
 	<header>
-		<input type="checkbox" id="search-toggle" />
-		<div id="app-nav" tabindex="0">
-			<div id="app-menu" tabindex="0">
-				<label for="nav" class="menu-link link">Menu</label>
+		<div id="app-nav">
+			<div id="app-menu">
+				<label class="menu-link link">Menu</label>
 				<div id="nav">
 					<div class="nav-header">
-						<label for="app-nav" class="menu-link link">Close Menu</label>
+						<label class="menu-link link">Close Menu</label>
 						<div class="app-name"><a href="/">Food for Thought</a></div>
 					</div>
 					<div class="user-profile">
@@ -27,7 +26,7 @@
 						<div class="user-info">
 							<div class="user-name"><%= user.displayName %><%= user.role === "admin" ? " (admin)" : "" %></div>
 							<div class="user-email"><%= user.email %></div>
-							<div class="user-actions"><a href="/logout">Logout</a></div>
+							<div class="user-actions"><a href="/logout">Logout</a><%- user.role === "admin" ? " <a href=\"/forceupdate\">Refresh</a>" : "" %></div>
 						</div>
 					</div>
 				</div>
