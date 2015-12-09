@@ -132,9 +132,10 @@ function getDateTime(now, timestamp) {
 function filterJournalEntries(user) {
 	var entries = [];
 	for (var i = 0; i < cache.length; i++) {
-		if (user.identities.indexOf(entries.emailaddress) < 0)
+		var entry = cache[i];
+		if (user.identities.indexOf(entry.emailaddress) < 0)
 			continue;
-		entries[entries.length] = cache[i];
+		entries[entries.length] = entry;
 	}
 	return entries;
 }
