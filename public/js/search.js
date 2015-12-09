@@ -19,7 +19,7 @@ window.addEventListener('load', function load(e) {
 	
 	var $journals = document.getElementsByClassName("journal-text");
 	for (var i = 0; i < $journals.length; i++) {
-		if ($journals[i].getElementsByClassName("more").length === 0) return;
+		if ($journals[i].getElementsByClassName("more").length === 0) continue;
 		$journals[i].classList.add("overflow");
 	}
 

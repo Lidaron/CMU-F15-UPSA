@@ -4,13 +4,13 @@ window.addEventListener('load', function load() {
 		document.documentElement.classList.remove('preload');
 	}, 0);
 	
-	var main = document.getElementById("main");
 	var menu = document.getElementById("app-menu");
 	menu.addEventListener('click', function (e) {
 		if (!e.target.classList.contains("menu-link")) return;
 		menu.classList.toggle("focus");
+		e.stopPropagation();
 	});
-	main.addEventListener('click', function (e) {
+	document.body.addEventListener('click', function (e) {
 		menu.classList.remove("focus");
 	});
 	
