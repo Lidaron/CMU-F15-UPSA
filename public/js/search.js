@@ -2,24 +2,26 @@ window.addEventListener('load', function load(e) {
 	var $searchform = document.getElementById("search-form");
 
 	var $searchbox = document.getElementById("search-box");
-	$searchbox.addEventListener("blur", function (e) {
-		if ($searchbox.value.trim() !== "") return;
-		$searchbox.value = "";
-		document.body.classList.remove("search-open");
-	});
-	
 	var $header = document.getElementsByTagName("header")[0];
 	$header.addEventListener("click", function (e) {
 		if (!e.target.classList.contains("search-link")) return;
 		if (!document.body.classList.contains("search-open")) {
 			$searchbox.value = "";
 			document.body.classList.add("search-open");
-			$searchbox.focus();
+			setTimeout(function () {
+				$searchbox.focus();
+			}, 100);
 			return;
 		}
 		doSearch("");
 		document.body.classList.remove("search-open");
 	});
+	
+	var $journals = document.getElementsByClassName("journal-text");
+	for (var i = 0; i < $journals.length; i++) {
+		if ($journals[i].getElementsByClassName("more").length === 0) return;
+		$journals[i].classList.add("overflow");
+	}
 
 	function matchQuery(text, terms) {
 		var tokens = text.toLowerCase().split(/\s+/);

@@ -308,17 +308,13 @@ section .journal .more-toggle {
 	left: -999999px;
 }
 
-section .journal .more-toggle ~ .journal-text {
-	max-height: 210px;
-	overflow: hidden;
+section .journal .more-toggle:not(:checked) ~ .journal-text.overflow .cont::after {
+	content: "\2026";
+	display: inline;
 }
 
-section .journal .more-toggle:checked ~ .journal-text {
-	max-height: initial;
-}
-
-section .journal .more-toggle:checked ~ .journal-links .more-link::before {
-	content: 'Show less';
+section .journal .more-toggle:not(:checked) ~ .journal-text.overflow .more {
+	display: none;
 }
 
 section .journal p {
@@ -331,8 +327,20 @@ section .journal .journal-links {
 	color: #9e9e9e;
 }
 
+section .journal .journal-links {
+	display: none;
+}
+
+section .journal .journal-text.overflow + .journal-links {
+	display: block;
+}
+
 section .journal .journal-links .more-link::before {
 	content: 'See more';
+}
+
+section .journal .more-toggle:checked ~ .journal-links .more-link::before {
+	content: 'Show less';
 }
 
 section .suggestions-list {

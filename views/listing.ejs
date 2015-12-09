@@ -63,8 +63,17 @@
 			<div class="journal preview">
 				<input type="checkbox" class="more-toggle" id="more-toggle-<%= i %>" />
 				<div class="journal-text">
+<% var count = 0; %>
+<% var limit = 350; %>
 <% for (var j = 0 ; j < paragraphs.length; j++) { %>
+<%     if (count + paragraphs[j].length <= limit) { %>
 					<p><%= paragraphs[j] %></p>
+<%     } else if (j > 5 || count > limit) { %>
+					<p class="more"><%= paragraphs[j] %></p>
+<%     } else { %>
+					<p><span class="cont"><%= paragraphs[j].substring(0, limit-count) %></span><span class="more"><%= paragraphs[j].substring(limit-count, paragraphs[j].length) %></span></p>
+<%     } /* endif */ %>
+<%     count += paragraphs[j].length; %>
 <% } /* endfor */ %>
 				</div>
 				<div class="journal-links"><label for="more-toggle-<%= i %>" class="more-link link"></label></div>
