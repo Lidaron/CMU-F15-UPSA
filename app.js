@@ -89,6 +89,16 @@ app.post('/compose', function(req, res) {
 	});
 });
 
+app.get('/forceupdate', ensureAuthenticated, function(req, res){
+	if (!req.user.role || req.user.role !== "admin") {
+		res.render('denied');
+		return;
+	}
+	Google.updateCacheAsync(function () {
+		res.redirect('/');
+	});
+});
+
 app.get('/wizards', ensureAuthenticated, function(req, res){
 	if (!req.user.role || req.user.role !== "admin") {
 		res.redirect('/');

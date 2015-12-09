@@ -13,13 +13,12 @@
 <body>
 
 	<header>
-		<input type="checkbox" id="search-toggle" />
-		<div id="app-nav" tabindex="0">
-			<div id="app-menu" tabindex="0">
-				<label for="nav" class="menu-link link">Menu</label>
+		<div id="app-nav">
+			<div id="app-menu">
+				<label class="menu-link link">Menu</label>
 				<div id="nav">
 					<div class="nav-header">
-						<a href="javascript:void();" class="menu-link link">Close Menu</a>
+						<label class="menu-link link">Close Menu</label>
 						<div class="app-name"><a href="/">Food for Thought</a></div>
 					</div>
 					<div class="user-profile">
@@ -27,19 +26,19 @@
 						<div class="user-info">
 							<div class="user-name"><%= user.displayName %><%= user.role === "admin" ? " (admin)" : "" %></div>
 							<div class="user-email"><%= user.email %></div>
-							<div class="user-actions"><a href="/logout">Logout</a></div>
+							<div class="user-actions"><a href="/logout">Logout</a><%- user.role === "admin" ? " <a href=\"/forceupdate\">Refresh</a>" : "" %></div>
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="app-name"><a href="/">Food for Thought</a></div>
 		</div>
-		<form id="search-form" tabindex="0">
-			<label for="search-toggle" class="search-link link">Close Search</label>
+		<form id="search-form">
+			<label class="search-link link">Close</label>
 			<span class="search-box-wrap"><input type="text" placeholder="Search" id="search-box" /></span>
 		</form>
 		<div id="utils">
-			<label for="search-toggle" id="utils-search" class="link">Search</label>
+			<label id="utils-search" class="search-link link">Search</label>
 			<a href="/compose" id="utils-add">Add</a>
 		</div>
 	</header>

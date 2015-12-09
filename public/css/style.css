@@ -79,9 +79,9 @@ a:hover, label.link:hover {
 	top: 0;
 	left: 0;
 	z-index: 49;
-	width: 230px;
+	width: 280px;
 	background: #fff;
-	box-shadow: 0 0 15px #616161;
+	box-shadow: 0 0 10px #9e9e9e;
 	opacity: 0;
 	visibility: hidden;
 	transition-duration: 0.5s;
@@ -97,11 +97,11 @@ a:hover, label.link:hover {
 	float: left;
 }
 
-#app-menu:focus {
+#app-menu.focus {
 	pointer-events: none;
 }
 
-#app-menu:focus #nav {
+#app-menu.focus #nav {
 	opacity: 1;
 	visibility: visible;
 	pointer-events: auto;
@@ -206,14 +206,11 @@ a:hover, label.link:hover {
 	padding: inherit;
 	opacity: 0;
 	visibility: hidden;
+	transition: 0.2s;
 }
 
-#search-toggle {
-	position: absolute;
-	left: -999999px;
-}
-
-#search-toggle:checked ~ #search-form {
+body.search-open #search-form,
+body.search-results #search-form {
 	opacity: 1;
 	visibility: visible;
 }
