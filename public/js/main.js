@@ -8,9 +8,11 @@ window.addEventListener('load', function load() {
 	menu.addEventListener('click', function (e) {
 		if (!e.target.classList.contains("menu-link")) return;
 		menu.classList.toggle("focus");
+	});
+	menu.addEventListener('mousedown', function (e) {
 		e.stopPropagation();
 	});
-	document.body.addEventListener('click', function (e) {
+	document.body.addEventListener('mousedown', function (e) {
 		menu.classList.remove("focus");
 	});
 	
