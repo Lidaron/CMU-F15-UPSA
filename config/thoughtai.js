@@ -89,7 +89,7 @@ ThoughtAI.prototype.alchemyTaxonomyText = function (text, callback) {
 		});
 		
 		console.log(tags);
-		callback(tags.length ? tags.join("\n") : "N/A (all under 66% score)");
+		callback(tags.length ? tags.join("\n") : "N/A (all under 25% score)");
 		
 	}, function (err) {
 		callback("N/A (Error retrieving taxonomy)");
@@ -105,12 +105,12 @@ ThoughtAI.prototype.alchemyKeywordsText = function (text, callback) {
 		
 		var keywords = [];
 		result.keywords.forEach(function (keyword) {
-			if (parseFloat(keyword.relevance) < 0.66) return;
+			if (parseFloat(keyword.relevance) < 0.25) return;
 			keywords.push(keyword.text + " -- " + keyword.relevance);
 		});
 		
 		console.log(keywords);
-		callback(keywords.length ? keywords.join("\n") : "N/A (all under 66% score)");
+		callback(keywords.length ? keywords.join("\n") : "N/A (all under 25% score)");
 		
 	}, function (err) {
 		callback("N/A (Error retrieving keywords)");
