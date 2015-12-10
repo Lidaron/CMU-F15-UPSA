@@ -37,6 +37,12 @@ window.addEventListener('load', function load(e) {
 		return true;
 	}
 	
+	function cleanTokens(arr) {
+		for (var i = 0; i < arr.length; i++) {
+			arr[i] = arr[i].replace(/(^[^a-z0-9]+)|([^a-z0-9]_$)/g, '');
+		}
+	}
+	
 	function doSearch(query) {
 		if (query === "") {
 			document.body.classList.remove("search-results");
@@ -45,6 +51,8 @@ window.addEventListener('load', function load(e) {
 		}
 
 		var terms = query.toLowerCase().split(/\s+/);
+		cleanTokens(terms);
+
 		var $sections = document.getElementsByClassName("journal-section");
 		for (var i = 0; i < $sections.length; i++) {
 			var $section = $sections[i];
@@ -52,10 +60,12 @@ window.addEventListener('load', function load(e) {
 			var tokens = [];
 			var $nodes = $section.getElementsByClassName("searchable");
 			for (var j = 0; j < $nodes.length; j++) {
-				tokens = tokens.concat($nodes[j].innerText.toLowerCase().split(/\s+/));
+				tokens = tokens.concat($nodes[j].toText().toLowerCase().split(/\s+/));
 			}
 
+			cleanTokens(tokens);
 			console.log(tokens);
+
 			if (matchQuery(tokens, terms)) {
 				$section.classList.remove("search-not-matched");
 			} else {

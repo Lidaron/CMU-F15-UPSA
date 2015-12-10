@@ -17,7 +17,6 @@ header {
 	box-sizing: border-box;
 	border-radius: 2px;
 	overflow: hidden;
-	padding: 76px 16px;
 	transition-duration: 0.5s;
 }
 
@@ -25,6 +24,8 @@ header {
 	font-size: 16px;
 	line-height: 28px;
 	min-height: 600px;
+	outline: 0;
+	padding: 76px 16px;
 }
 
 #composer-page p {
@@ -78,12 +79,11 @@ header {
 	#composer {
 		margin: 16px;
 		border: 1px solid rgba(0,0,0,0.12);
-		padding: 92px 80px;
 	}
 
 	#composer-header {
 		position: static;
-		margin: -93px -81px 21px -81px;
+		margin: 0 0 -72px 0;
 		padding: 12px;
 		height: 48px;
 	}
@@ -92,5 +92,6 @@ header {
 		font-size: 20px;
 		line-height: 36px;
 		min-height: 800px;
+		padding: 92px 80px;
 	}
 }

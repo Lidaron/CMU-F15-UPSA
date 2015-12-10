@@ -5,11 +5,14 @@ var html = document.getElementById("composer-page");
 var text = document.getElementById("composer-text");
 btn.addEventListener("click", function (e) {
 	e.preventDefault();
-	text.value = html.innerText;
+	text.value = html.toText();
+	if (text.value.trim().length < 10) {
+		return alert("Please enter some text before continuing.");
+	}
 	form.submit();
 });
 discard.addEventListener("click", function (e) {
-	if (html.innerText.length < 10) return;
+	if (html.toText().length < 10) return;
 	if (confirm("Are you sure you want to discard this entry?")) return;
 	e.preventDefault();
 });
