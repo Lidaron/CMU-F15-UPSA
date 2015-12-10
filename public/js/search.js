@@ -39,7 +39,7 @@ window.addEventListener('load', function load(e) {
 	
 	function cleanTokens(arr) {
 		for (var i = 0; i < arr.length; i++) {
-			arr[i] = arr[i].replace(/(^[^a-z0-9]+)|([^a-z0-9]_$)/g, '');
+			arr[i] = arr[i].replace(/(^[^a-z0-9]+)|([^a-z0-9]+$)/g, '');
 		}
 	}
 	
