@@ -134,7 +134,7 @@ function Users(app) {
 				if (err) { return next(err); }
 			});
 			res.redirect(redirectUrl);
-		})(req, res, next);;
+		})(req, res, next);
 	});
 }
 

@@ -29,6 +29,7 @@ sheet.useServiceAccountAuth(key, function(err) {
 	});
 });
 
+var FormData = require('form-data');
 
 /* Google APIs
 -------------------------------------------------- */
@@ -37,7 +38,8 @@ module.exports = function (ThoughtAI) {
 	AI = ThoughtAI;
 	return {
 		getJournalEntriesAsync: getJournalEntriesAsync,
-		updateCacheAsync: updateCacheAsync
+		updateCacheAsync: updateCacheAsync,
+		submitPost: submitPost
 	};
 }
 
@@ -186,6 +188,23 @@ function ensureProcessed(entry) {
 	} catch (e) {
 		console.log(e);
 	}
+}
+
+function submitPost(options, callback) {
+	var form = new FormData();
+	form.append('entry.458172453', options.email);
+	form.append('entry.1465035853', options.location);
+	form.append('entry.1727190044', options.device);
+	form.append('entry.1182892926', options.text);
+	form.submit('https://docs.google.com/a/andrew.cmu.edu/forms/d/***REMOVED***/formResponse', function (err, res) {
+		if (err) {
+			console.log(err);
+			return;
+		}
+
+		console.log(res.statusCode);
+		updateCacheAsync(callback);
+	});
 }
 
 function updateCacheAsync(callback) {

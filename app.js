@@ -19,8 +19,6 @@
 var express = require('express'),
 	app = express();
 
-var FormData = require('form-data');
-
 // bootstrap application settings
 require('./config/express')(app);
 
@@ -54,7 +52,8 @@ app.get('/compose', function(req, res){
 	}
 
 	res.render('composer', {
-		user: req.user
+		user: req.user,
+		draft: ""
 	});
 });
 
@@ -66,27 +65,19 @@ app.post('/compose', function(req, res) {
 	
 	var text = req.body.journal;
 	if (!text) {
-		res.render('composer', {
+		return res.render('composer', {
 			user: req.user,
 			draft: text
 		});
 	}
 
-	var form = new FormData();
-	form.append('entry.458172453', req.user.email);
-	form.append('entry.1465035853', '');
-	form.append('entry.1727190044', 'Development Web App');
-	form.append('entry.1182892926', text);
-	form.submit('https://docs.google.com/a/andrew.cmu.edu/forms/d/***REMOVED***/formResponse', function (err2, res2) {
-		if (err2) {
-			console.log(err2);
-			return;
-		}
-
-		console.log(res2.statusCode);
-		Updater.updateCacheAsync(function () {
-			res.redirect('/');
-		});
+	Updater.submitPost({
+		email: req.user.email,
+		location: '',
+		device: "Development Web App",
+		text: text
+	}, function () {
+		res.redirect('/');
 	});
 });
 

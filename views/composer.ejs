@@ -41,7 +41,12 @@
 				<a href="/" id="composer-discard" class="discard-link">Discard</a>
 				<button type="button" id="composer-submit" class="submit-link link">Submit</button>
 			</div>
-			<div id="composer-page" contenteditable="true"></div>
+			<div id="composer-page" contenteditable="true">
+				<% var paragraphs = draft.split("\n"); %>
+				<% for (var i = 0; i < paragraphs.length; i++) { %>
+				<%= paragraphs[i] %><br />
+				<% } /* endfor */ %>
+			</div>
 			<input type="hidden" id="composer-text" name="journal" />
 		</form>
 	</div>
