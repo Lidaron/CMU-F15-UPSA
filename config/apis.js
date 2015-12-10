@@ -11,7 +11,7 @@ var watson_credentials = extend({
 	version: 'v2'
 }); // VCAP_SERVICES
 
-var akchemyapi_key = "***REMOVED***";
+var akchemyapi_key = "***REMOVED***"; // "***REMOVED***";
 
 // AlchemyAPI
 var AlchemyAPI = require('./alchemyapi');

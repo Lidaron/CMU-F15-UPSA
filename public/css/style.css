@@ -256,7 +256,6 @@ section {
 	padding: 40px 16px 0 16px;
 	background: #ffffff;
 	border: 1px solid rgba(0,0,0,0.12);
-	box-sizing: border-box;
 	border-radius: 2px;
 	overflow: hidden;
 	transition-duration: 0.5s;
@@ -275,6 +274,10 @@ body.search-results .search-empty {
 body.search-results section.journal-section:not(.search-not-matched) ~ .search-empty,
 body.search-results section.prompt {
 	display: none;
+}
+
+section.journal-section {
+	position: relative;
 }
 
 section .datetime {
@@ -350,8 +353,16 @@ section .suggestions-list {
 	list-style: none;
 	margin: 0;
 	padding: 24px 0;
+	min-height: 100%;
+}
+
+section .suggestions-list::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin: -24px 16px;
 	border-top: 1px solid rgba(0, 0, 0, 0.12);
-	min-height: 50px;
 }
 
 section .suggestions-list .item-thumb {
@@ -460,7 +471,7 @@ section.search-not-matched {
 	section {
 		margin: 24px;
 		padding: 40px 24px;
-		max-width: 720px;
+		max-width: 670px;
 	}
 	
 	section .datetime {
@@ -479,10 +490,18 @@ section.search-not-matched {
 	
 	section .suggestions-list {
 		float: right;
+		padding: 10px 0 10px 24px;
+		width: 50%;
+	}
+	
+	section .suggestions-list::before {
 		border-top: 0;
 		border-left: 1px solid rgba(0, 0, 0, 0.12);
-		padding: 10px 0 10px 23px;
-		width: 50%;
+		left: auto;
+		right: auto;
+		top: 0;
+		bottom: 0;
+		margin: 40px -24px;
 	}
 
 	section.prompt {

@@ -14,7 +14,7 @@ ThoughtAI.prototype.conceptInsightsText = function (text, callback) {
 		text: text
 	}, function (result) {
 		if (!("annotations" in result)) {
-			return callback("N/A (Annotations unavailable)");
+			return callback("N/A (Annotations unavailable)", []);
 		}
 		
 		var conceptids = [];
@@ -24,7 +24,7 @@ ThoughtAI.prototype.conceptInsightsText = function (text, callback) {
 		}
 		
 		if (conceptids.length === 0) {
-			return callback("N/A (No concepts found)");
+			return callback("N/A (No concepts found)", []);
 		}
 		
 		APIs.conceptualSearch({
@@ -33,7 +33,7 @@ ThoughtAI.prototype.conceptInsightsText = function (text, callback) {
 			ids: conceptids
 		}, function (data) {
 			if (!("results" in data)) {
-				return callback("N/A (Conceptual search results unavailable)")
+				return callback("N/A (Conceptual search results unavailable)", [])
 			}
 			
 			var links = [];
@@ -43,14 +43,14 @@ ThoughtAI.prototype.conceptInsightsText = function (text, callback) {
 			});
 			
 			console.log(links);
-			callback(links.length ? links.join("\n") : "N/A (all under 66% confidence)");
+			callback(links.length ? links.join("\n") : "N/A (all under 66% confidence)", links);
 
 		}, function (err) {
-			callback("N/A (Error retrieving conceptual search results)");
+			callback("N/A (Error retrieving conceptual search results)", []);
 		});
 		
 	}, function (err) {
-		callback("N/A (Error retrieving concept mentions)");
+		callback("N/A (Error retrieving concept mentions)", []);
 	});
 };
 
@@ -84,7 +84,7 @@ ThoughtAI.prototype.alchemyTaxonomyText = function (text, callback) {
 		
 		var tags = [];
 		result.taxonomy.forEach(function (tag) {
-			if (parseFloat(tag.score) < 0.66) return;
+			if (parseFloat(tag.score) < 0.25) return;
 			tags.push(tag.label + " -- " + tag.score);
 		});
 		

@@ -1,70 +1,56 @@
-var users = {
-	'blx': {
-		identities: [ "***REMOVED***" ],
-		displayName: "Brian Xu",
-		role: "admin",
-	},
-	'bnelson': {
-		identities: [ "***REMOVED***" ],
-		displayName: "Brian Nelson",
-		role: "admin",
-	},
-	'pgoodwin': {
-		identities: [ "***REMOVED***" ],
-		displayName: "Paul Goodwin",
-		role: "admin",
-	},
-	'***REMOVED***': {
-		identities: [ '***REMOVED***','***REMOVED***' ],
-		displayName: "***REMOVED***",
-		role: "user",
-	},
-	'***REMOVED***': { 
-		identities: ['***REMOVED***', '***REMOVED***'],
-		displayName: "***REMOVED***",
-		role: "user",
-	},
-	'***REMOVED***': { 
-		identities: ['***REMOVED***', '***REMOVED***'],
-		displayName: "***REMOVED***",
-		role: "user",
-	},
-	'***REMOVED***': { 
-		identities: ['***REMOVED***'],
-		displayName: "***REMOVED***",
-		role: "user",
-	},
-	'***REMOVED***': { 
-		identities: ['***REMOVED***', '***REMOVED***'],
-		displayName: "***REMOVED***",
-		role: "user",
-	},
-	'***REMOVED***': { 
-		identities: ['***REMOVED***', '***REMOVED***'],
-		displayName: "***REMOVED***",
-		role: "user",
-	},
-	'***REMOVED***': { 
-		identities: ['***REMOVED***', '***REMOVED***'],
-		displayName: "***REMOVED***",
-		role: "user",
-	},
-	'***REMOVED***': { 
-		identities: ['***REMOVED***', '***REMOVED***'],
-		displayName: "***REMOVED***",
-		role: "user",
-	},
-	'***REMOVED***': { 
-		identities: ['***REMOVED***', '***REMOVED***'],
-		displayName: "***REMOVED***",
-		role: "user",
-	},
-	'***REMOVED***': { 
-		identities: ['***REMOVED***', '***REMOVED***'],
-		displayName: "***REMOVED***",
-		role: "user",
-	},
-};
+var users = [{
+	identities: [ "***REMOVED***", "***REMOVED***" ],
+	displayName: "Brian Xu",
+	role: "admin",
+}, {
+	identities: [ "***REMOVED***" ],
+	displayName: "Brian Nelson",
+	role: "admin",
+}, {
+	identities: [ "***REMOVED***" ],
+	displayName: "Paul Goodwin",
+	role: "admin",
+}, {
+	identities: [ '***REMOVED***','***REMOVED***' ],
+	displayName: "***REMOVED***",
+	role: "user",
+}, { 
+	identities: ['***REMOVED***', '***REMOVED***'],
+	displayName: "***REMOVED***",
+	role: "user",
+}, { 
+	identities: ['***REMOVED***', '***REMOVED***'],
+	displayName: "***REMOVED***",
+	role: "user",
+}, { 
+	identities: ['***REMOVED***'],
+	displayName: "***REMOVED***",
+	role: "user",
+}, { 
+	identities: ['***REMOVED***', '***REMOVED***'],
+	displayName: "***REMOVED***",
+	role: "user",
+}, { 
+	identities: ['***REMOVED***', '***REMOVED***'],
+	displayName: "***REMOVED***",
+	role: "user",
+}, { 
+	identities: ['***REMOVED***', '***REMOVED***'],
+	displayName: "***REMOVED***",
+	role: "user",
+}, { 
+	identities: ['***REMOVED***', '***REMOVED***'],
+	displayName: "***REMOVED***",
+	role: "user",
+}, { 
+	identities: ['***REMOVED***', '***REMOVED***'],
+	displayName: "***REMOVED***",
+	role: "user",
+}, { 
+	identities: ['***REMOVED***', '***REMOVED***'],
+	displayName: "***REMOVED***",
+	role: "user",
+}];
 
 var baseurl = "https://thoughtagent.azurewebsites.net";
 if (process.env.NODE_ENV !== 'production') {
@@ -105,32 +91,32 @@ function Users(app) {
 		clientSecret: Google_ClientSecret,
 		callbackURL: baseurl + "/auth/google/callback"
 	}, function (token, tokenSecret, profile, done) {
-		var andrewId = getAndrewId(profile.emails);
+		var email = getAccountEmail(profile.emails);
 		var user = {
 			id: profile.id,
-			andrewId: andrewId,
-			email: andrewId + "@andrew.cmu.edu",
+			email: email,
 			name: profile.name,
 			displayName: profile.displayName,
 			picture: "",
-			identities: [ andrewId + "@andrew.cmu.edu" ],
-			role: null
+			identities: [ email ],
+			role: "user"
 		};
 		if (profile.photos.length > 0) {
 			user.picture = profile.photos[0].value;
 		}
-		if (andrewId && andrewId in users) {
-			user.identities = users[andrewId].identities;
-			user.role = users[andrewId].role;
-			user.displayName = users[andrewId].displayName;
+
+		for (var i = 0; i < users.length; i++) {
+			if (users[i].identities.indexOf(email) < 0) continue;
+			user.identities = users[i].identities;
+			user.role = users[i].role;
+			break;
 		}
 		console.log(user);
 		return done(null, user);
 	})); 
 	
 	app.get('/auth/google', passport.authenticate('google', {
-		scope: ['profile', 'email', 'https://www.googleapis.com/auth/plus.login'],
-		hd: "andrew.cmu.edu"
+		scope: ['profile', 'email', 'https://www.googleapis.com/auth/plus.login']
 	}));
 	app.get('/auth/google/callback', function(req, res, next) {
 		passport.authenticate('google', function (err, user, info) {
@@ -152,18 +138,10 @@ function Users(app) {
 	});
 }
 
-function getAndrewId(emails) {
+function getAccountEmail(emails) {
 	for (var i = 0; i < emails.length; i++) {
-		if (emails[i].type !== "account") {
-			continue;
-		}
- 
-		var emailParts = emails[i].value.split("@");
-		var username = emailParts[0];
-		var domain = emailParts[1];
-
-		if (domain === "andrew.cmu.edu") {
-			return username;
-		}
+		if (emails[i].type !== "account") continue;
+		return emails[i].value;
 	}
+	return null;
 }

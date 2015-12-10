@@ -147,10 +147,17 @@ function ensureProcessed(entry) {
 		return;
 
 	var count = 0;
+	var links = [];
 	var updateCell = function (col) {
-		return function (value) {
+		return function (value, newlinks) {
 			entry[col] = value;
+			if (typeof newlinks === "object") links = links.concat(newlinks);
 			if (++count < 4) return;
+			if (links.length > 0) entry.foodforthought1 = links[0];
+			if (links.length > 1) entry.foodforthought2 = links[1];
+			if (links.length > 2) entry.foodforthought3 = links[2];
+			if (links.length > 3) entry.foodforthought4 = links[3];
+			if (links.length > 4) entry.foodforthought5 = links[4];
 			console.log("Saving...");
 			entry.save();
 		};
