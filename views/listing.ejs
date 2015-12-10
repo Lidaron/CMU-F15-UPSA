@@ -62,7 +62,7 @@
 			</div>
 			<div class="journal preview">
 				<input type="checkbox" class="more-toggle" id="more-toggle-<%= i %>" />
-				<div class="journal-text">
+				<div class="journal-text searchable">
 <% var count = 0; %>
 <% var limit = 350; %>
 <% for (var j = 0 ; j < paragraphs.length; j++) { %>
@@ -84,7 +84,7 @@
 				<li class="item">
 					<div class="item-thumb"><a href="<%= suggest.link %>" style="background-image: url(<%= suggest.image %>);"></a></div>
 					<div class="item-content">
-						<div class="title"><a href="<%= suggest.link %>"><%= suggest.title %></a></div>
+						<div class="title<%= suggest.title === null ? "" : " searchable" %>"><a href="<%= suggest.link %>"><%= suggest.title === null ? "(Thought Bot is parsing this article...)" : suggest.title %></a></div>
 						<div class="meta source"><a href="<%= suggest.website %>"><%= suggest.source %></a></div>
 					</div>
 				</li>

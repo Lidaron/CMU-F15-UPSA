@@ -25,9 +25,10 @@ var FormData = require('form-data');
 require('./config/express')(app);
 
 // config
-var Google = require('./config/googleapis');
 var Users = require('./config/users')(app);
 var APIs = require('./config/apis')(app);
+var AI = require('./config/thoughtai')(APIs);
+var Updater = require('./config/googleapis')(AI);
 
 app.get('/', function(req, res){
 	if (!req.user) {
@@ -38,7 +39,7 @@ app.get('/', function(req, res){
 		return;
 	}
 
-	Google.getJournalEntriesAsync(req.user, function (entries) {
+	Updater.getJournalEntriesAsync(req.user, function (entries) {
 		res.render('listing', {
 			user: req.user,
 			entries: entries
@@ -83,7 +84,7 @@ app.post('/compose', function(req, res) {
 		}
 
 		console.log(res2.statusCode);
-		Google.updateCacheAsync(function () {
+		Updater.updateCacheAsync(function () {
 			res.redirect('/');
 		});
 	});
@@ -94,7 +95,7 @@ app.get('/forceupdate', ensureAuthenticated, function(req, res){
 		res.render('denied');
 		return;
 	}
-	Google.updateCacheAsync(function () {
+	Updater.updateCacheAsync(function () {
 		res.redirect('/');
 	});
 });

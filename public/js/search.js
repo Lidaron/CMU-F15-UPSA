@@ -23,8 +23,7 @@ window.addEventListener('load', function load(e) {
 		$journals[i].classList.add("overflow");
 	}
 
-	function matchQuery(text, terms) {
-		var tokens = text.toLowerCase().split(/\s+/);
+	function matchQuery(tokens, terms) {
 		for (var i = 0; i < terms.length; i++) {
 			var found = false;
 			for (var j = 0; j < tokens.length; j++) {
@@ -49,9 +48,15 @@ window.addEventListener('load', function load(e) {
 		var $sections = document.getElementsByClassName("journal-section");
 		for (var i = 0; i < $sections.length; i++) {
 			var $section = $sections[i];
-			var text = $section.getElementsByClassName("journal-text")[0].innerText;
-			console.log(text);
-			if (matchQuery(text, terms)) {
+
+			var tokens = [];
+			var $nodes = $section.getElementsByClassName("searchable");
+			for (var j = 0; j < $nodes.length; j++) {
+				tokens = tokens.concat($nodes[j].innerText.toLowerCase().split(/\s+/));
+			}
+
+			console.log(tokens);
+			if (matchQuery(tokens, terms)) {
 				$section.classList.remove("search-not-matched");
 			} else {
 				$section.classList.add("search-not-matched");

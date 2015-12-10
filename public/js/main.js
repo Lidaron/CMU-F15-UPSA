@@ -9,12 +9,18 @@ window.addEventListener('load', function load() {
 		if (!e.target.classList.contains("menu-link")) return;
 		menu.classList.toggle("focus");
 	});
-	menu.addEventListener('mousedown', function (e) {
-		e.stopPropagation();
-	});
-	document.body.addEventListener('mousedown', function (e) {
-		menu.classList.remove("focus");
-	});
+	
+	(function () {
+		var menuClicked = true;
+		menu.addEventListener('mousedown', function (e) {
+			menuClicked = true;
+		});
+		document.body.addEventListener('mousedown', function (e) {
+			if (!menuClicked)
+				menu.classList.remove("focus");
+			menuClicked = false;
+		});
+	}());
 	
 	Waves.attach('header .link', ['waves-button', 'waves-circle']);
 	Waves.attach('#composer-header a, #composer-header button', ['waves-button', 'waves-circle']);

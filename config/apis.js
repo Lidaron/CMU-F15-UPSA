@@ -26,22 +26,94 @@ var graph_id = process.env.GRAPH_ID || '/graphs/wikipedia/en-20120601';
 
 /* Thought APIs
 -------------------------------------------------- */
-module.exports = ThoughtAPIs;
+module.exports = function (app) {
+	var APIs = new ThoughtAPIs(app);
+	APIs.init();
+	return APIs;
+};
 
 function ThoughtAPIs(app) {
+	this.app = app;
+}
+
+ThoughtAPIs.prototype.labelSearch = function (query, resolve, reject) {
+	var params = extend({ corpus: corpus_id, prefix: true, limit: 10, concepts: true }, query);
+	conceptInsights.corpora.searchByLabel(params, function (err, results) {
+		if (err) {
+			console.log('labelSearch', err);
+			return reject(err);
+		}
+		console.log('labelSearch', results);
+		resolve(results);
+	});
+};
+
+ThoughtAPIs.prototype.conceptualSearch = function (query, resolve, reject) {
+	var params = extend({ corpus: corpus_id, limit: 10 }, query);
+	conceptInsights.corpora.getRelatedDocuments(params, function (err, data) {
+		if (err) {
+			console.log('conceptualSearch', err);
+			return reject(err);
+		}
+		async.parallel(data.results.map(getPassagesAsync), function (err, documentsWithPassages) {
+			if (err) {
+				console.log('conceptualSearch:getPassagesAsync', err);
+				return reject(err);
+			}
+			data.results = documentsWithPassages;
+			console.log('conceptualSearch', data);
+			resolve(data);
+		});
+	});
+};
+
+ThoughtAPIs.prototype.extractConceptMentions = function (query, resolve, reject) {
+	var params = extend({ graph: graph_id }, query);
+	conceptInsights.graphs.annotateText(params, function (err, results) {
+		if (err) {
+			console.log('extractConceptMentions', err);
+			return reject(err);
+		}
+		console.log('extractConceptMentions', results);
+		resolve(results);
+	});
+};
+
+ThoughtAPIs.prototype.alchemyConceptTagging = function (text, resolve) {
+	alchemyapi.concepts('text', text, {}, function (output) {
+		console.log('alchemyConceptTagging', output);
+		resolve(output);
+	});
+};
+
+ThoughtAPIs.prototype.alchemyKeywords = function (text, resolve) {
+	alchemyapi.keywords('text', text, {}, function (output) {
+		console.log('alchemyKeywords', output);
+		resolve(output);
+	});
+};
+
+ThoughtAPIs.prototype.alchemyTaxonomy = function (text, resolve) {
+	alchemyapi.taxonomy('text', text, {}, function (output) {
+		console.log('alchemyTaxonomy', output);
+		resolve(output);
+	});
+};
+
+ThoughtAPIs.prototype.init = function () {
+	var APIs = this;
+	var app = this.app;
+
 	app.get('/api/labelSearch', ensureAuthenticated, function (req, res, next) {
 		if (!req.user.role || req.user.role !== "admin") {
 			res.redirect('/');
 			return;
 		}
 
-		var params = extend({ corpus: corpus_id, prefix: true, limit: 10, concepts: true }, req.query);
-		conceptInsights.corpora.searchByLabel(params, function (err, results) {
-			if (err) {
-				return next(err);
-			} else {
-				res.json(results);
-			}
+		APIs.conceptualSearch(req.query, function (results) {
+			res.json(results);
+		}, function (err) {
+			next(err);
 		});
 	});
 
@@ -51,14 +123,10 @@ function ThoughtAPIs(app) {
 			return;
 		}
 
-		var params = extend({ corpus: corpus_id, limit: 10 }, req.query);
-		conceptInsights.corpora.getRelatedDocuments(params, function (err, data) {
-			if (err) return next(err);
-			async.parallel(data.results.map(getPassagesAsync), function (err, documentsWithPassages) {
-				if (err) return next(err);
-				data.results = documentsWithPassages;
-				res.json(data);
-			});
+		APIs.conceptualSearch(req.query, function (results) {
+			res.json(results);
+		}, function (err) {
+			next(err);
 		});
 	});
 
@@ -68,10 +136,10 @@ function ThoughtAPIs(app) {
 			return;
 		}
 
-		var params = extend({ graph: graph_id }, req.body);
-		conceptInsights.graphs.annotateText(params, function (err, results) {
-			if (err) { return next(err); }
+		APIs.extractConceptMentions(req.body, function (results) {
 			res.json(results);
+		}, function (err) {
+			next(err);
 		});
 	});
 
@@ -81,8 +149,7 @@ function ThoughtAPIs(app) {
 			return;
 		}
 
-		var params = extend({}, req.body);
-		alchemyapi.concepts('text', params.text, {}, function (output) {
+		APIs.alchemyConceptTagging(req.body.text, function (output) {
 			res.json(output);
 		});
 	});
@@ -93,8 +160,7 @@ function ThoughtAPIs(app) {
 			return;
 		}
 
-		var params = extend({}, req.body);
-		alchemyapi.keywords('text', params.text, {}, function (output) {
+		APIs.alchemyKeywords(req.body.text, function (output) {
 			res.json(output);
 		});
 	});
@@ -105,12 +171,11 @@ function ThoughtAPIs(app) {
 			return;
 		}
 
-		var params = extend({}, req.body);
-		alchemyapi.taxonomy('text', params.text, {}, function (output) {
+		APIs.alchemyTaxonomy(req.body.text, function (output) {
 			res.json(output);
 		});
 	});
-}
+};
 
 /**
  * Builds an Async function that get a document and call crop the passages on it.

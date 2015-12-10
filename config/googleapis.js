@@ -1,4 +1,4 @@
-var baseurl = "https://thoughtagent.azurewebsites.net";
+	var baseurl = "https://thoughtagent.azurewebsites.net";
 if (process.env.NODE_ENV !== 'production') {
 	baseurl = "http://localhost:3000";
 }
@@ -16,49 +16,30 @@ resolver.register(new ImageResolver.Webpage());
 var url = require('url');
 var dateFormat = require('dateformat');
 
-var google = require('googleapis');
-var GoogleSpreadsheets = require('google-spreadsheets');
+var GoogleSpreadsheet = require('google-spreadsheet');
+var sheet = new GoogleSpreadsheet("***REMOVED***");
 
 var key = require('./googleapis-key.json');
-var jwtClient = new google.auth.JWT(key.client_email, null, key.private_key, ['https://www.googleapis.com/auth/drive'], null);
+var responsesIndex = 1;
 
-var responses = null;
-jwtClient.authorize(function (err, tokens) {
-	if (err) {
-		console.log(err);
-		return;
-	}
-	
-	var Google_ClientID = '***REMOVED***';
-	var Google_ClientSecret = '***REMOVED***';
-	var oauth2Client = new google.auth.OAuth2(Google_ClientID, Google_ClientSecret, baseurl + "/auth/google/callback"); 
-	oauth2Client.setCredentials({
-		access_token: tokens.access_token,
-		refresh_token: tokens.refresh_token
+sheet.useServiceAccountAuth(key, function(err) {
+	if (err) return console.log(err);
+	sheet.getInfo(function(err, sheet_info) {
+		console.log( sheet_info.title + ' is loaded' );
 	});
-
-	GoogleSpreadsheets({
-		key: "***REMOVED***",
-		auth: oauth2Client
-	}, function(err, spreadsheet) {
-		if (err) {
-			console.log(err);
-			return;
-		}
-
-		responses = spreadsheet.worksheets[0];
-	});
-
 });
 
 
 /* Google APIs
 -------------------------------------------------- */
-module.exports = {
-	api: google,
-	getJournalEntriesAsync: getJournalEntriesAsync,
-	updateCacheAsync: updateCacheAsync
-};
+var AI;
+module.exports = function (ThoughtAI) {
+	AI = ThoughtAI;
+	return {
+		getJournalEntriesAsync: getJournalEntriesAsync,
+		updateCacheAsync: updateCacheAsync
+	};
+}
 
 var links = {};
 
@@ -77,7 +58,7 @@ function getSuggestionDetails(link) {
 	}
 
 	links[link] = {
-		title: "(Thought Bot is parsing this article...)",
+		title: null,
 		link: link,
 		source: source,
 		website: urlOpts.protocol + "//" + urlOpts.host + "/",
@@ -155,12 +136,55 @@ function getJournalEntriesAsync(user, callback) {
 	});
 }
 
+function ensureProcessed(entry) {
+	if (entry.conceptinsights !== "")
+		return;
+	if (entry.concepttagging !== "")
+		return;
+	if (entry.taxonomy !== "")
+		return;
+	if (entry.keywords !== "")
+		return;
+
+	var count = 0;
+	var updateCell = function (col) {
+		return function (value) {
+			entry[col] = value;
+			if (++count < 4) return;
+			console.log("Saving...");
+			entry.save();
+		};
+	};
+
+	try {
+		AI.conceptInsightsText(
+			entry.whatsonyourmind,
+			updateCell("conceptinsights")
+		);
+	
+		AI.alchemyConceptTaggingText(
+			entry.whatsonyourmind,
+			updateCell("concepttagging")
+		);
+	
+		AI.alchemyTaxonomyText(
+			entry.whatsonyourmind,
+			updateCell("taxonomy")
+		);
+	
+		AI.alchemyKeywordsText(
+			entry.whatsonyourmind,
+			updateCell("keywords")
+		);
+	} catch (e) {
+		console.log(e);
+	}
+}
+
 function updateCacheAsync(callback) {
 	var now = new Date();
 
-	responses.rows({
-		start: 1
-	}, function(err, res) {
+	sheet.getRows(responsesIndex, function(err, res) {
 		if (err) {
 			console.log(err);
 			return;
@@ -172,8 +196,10 @@ function updateCacheAsync(callback) {
 		for (var i = 0; i < res.length; i++) {
 			var entry = res[i];
 
-			if (typeof entry.exclude === "string")
+			if (entry.exclude !== "")
 				continue;
+
+			ensureProcessed(entry);
 
 			var plates = [
 				entry.foodforthought1,
@@ -185,7 +211,7 @@ function updateCacheAsync(callback) {
 
 			var suggestions = [];
 			for (var j = 0; j < plates.length; j++) {
-				if (typeof plates[j] === "string") {
+				if (plates[j] !== "") {
 					suggestions.push(getSuggestionDetails(plates[j]));
 				}
 			}

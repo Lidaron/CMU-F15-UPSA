@@ -27,6 +27,8 @@ body {
 	font: 14px/24px "Source Sans Pro", Helvetica, Arial, sans-serif;
 	color: #616161;
 	background: #fafafa;
+	overflow: auto;
+	-ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
 header {
@@ -84,7 +86,7 @@ a:hover, label.link:hover {
 	box-shadow: 0 0 10px #9e9e9e;
 	opacity: 0;
 	visibility: hidden;
-	transition-duration: 0.5s;
+	transition-duration: 0.2s;
 }
 
 #app-nav .menu-link {
