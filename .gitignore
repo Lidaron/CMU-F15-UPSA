@@ -2,6 +2,8 @@
 !public/fonts/icon-fonts/README.md
 !public/minjs/README.md
 concept-insights-nodejs/
+config/
+launchConfigurations/
 
 
 # Created by https://www.gitignore.io/api/code,windows,emacs,node
