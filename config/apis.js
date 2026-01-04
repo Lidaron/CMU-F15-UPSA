@@ -18,8 +18,50 @@ var AlchemyAPI = require('./alchemyapi');
 var alchemyapi = new AlchemyAPI(akchemyapi_key);
 
 // Watson
-var watson = require('watson-developer-cloud');
-var conceptInsights = watson.concept_insights(watson_credentials);
+// Use the IBM Watson NLU and Discovery SDKs + authenticators
+var NaturalLanguageUnderstandingV1 = require('ibm-watson/natural-language-understanding/v1');
+var DiscoveryV2 = require('ibm-watson/discovery/v2');
+var { IamAuthenticator } = require('ibm-watson/auth');
+var { BasicAuthenticator } = require('ibm-cloud-sdk-core');
+
+var nlu, discovery;
+var serviceVersion = watson_credentials.version || '2021-08-01';
+
+if (watson_credentials && watson_credentials.username && watson_credentials.password) {
+	// legacy username/password credentials
+	var basicAuth = new BasicAuthenticator({ username: watson_credentials.username, password: watson_credentials.password });
+	nlu = new NaturalLanguageUnderstandingV1({
+		version: serviceVersion,
+		authenticator: basicAuth,
+		serviceUrl: watson_credentials.url || process.env.NLU_URL
+	});
+	discovery = new DiscoveryV2({
+		version: serviceVersion,
+		authenticator: basicAuth,
+		serviceUrl: process.env.DISCOVERY_URL || watson_credentials.url
+	});
+} else if (watson_credentials && (watson_credentials.iam_apikey || watson_credentials.apikey)) {
+	// IAM apikey credentials
+	var apikey = watson_credentials.iam_apikey || watson_credentials.apikey;
+	var iamAuth = new IamAuthenticator({ apikey: apikey });
+	nlu = new NaturalLanguageUnderstandingV1({
+		version: serviceVersion,
+		authenticator: iamAuth,
+		serviceUrl: process.env.NLU_URL || watson_credentials.url
+	});
+	discovery = new DiscoveryV2({
+		version: serviceVersion,
+		authenticator: iamAuth,
+		serviceUrl: process.env.DISCOVERY_URL || watson_credentials.url
+	});
+} else {
+	// fallback: instantiate with only version; services may error at runtime if not configured
+	nlu = new NaturalLanguageUnderstandingV1({ version: serviceVersion, serviceUrl: process.env.NLU_URL });
+	discovery = new DiscoveryV2({ version: serviceVersion, serviceUrl: process.env.DISCOVERY_URL });
+}
+
+// Discovery project id (required for document search).
+var discovery_project_id = process.env.DISCOVERY_PROJECT_ID || process.env.DISCOVERY_PROJECT || null;
 
 var corpus_id = process.env.CORPUS_ID || '/corpora/public/TEDTalks';
 var graph_id = process.env.GRAPH_ID || '/graphs/wikipedia/en-20120601';
@@ -37,45 +79,75 @@ function ThoughtAPIs(app) {
 }
 
 ThoughtAPIs.prototype.labelSearch = function (query, resolve, reject) {
-	var params = extend({ corpus: corpus_id, prefix: true, limit: 10, concepts: true }, query);
-	conceptInsights.corpora.searchByLabel(params, function (err, results) {
-		if (err) {
-			console.log('labelSearch', err);
-			return reject(err);
-		}
-		console.log('labelSearch', results);
-		resolve(results);
+	var q = (query && (query.q || query.text || query.label)) || '';
+	if (!discovery || !discovery_project_id) {
+		var err = new Error('Discovery not configured. Set DISCOVERY_PROJECT_ID to enable labelSearch.');
+		console.log('labelSearch', err);
+		return reject(err);
+	}
+	var params = {
+		projectId: discovery_project_id,
+		naturalLanguageQuery: q,
+		count: 10
+	};
+	discovery.query(params)
+	.then(function(response){
+		console.log('labelSearch', response.result);
+		resolve(response.result);
+	})
+	.catch(function(err){
+		console.log('labelSearch', err);
+		reject(err);
 	});
 };
 
 ThoughtAPIs.prototype.conceptualSearch = function (query, resolve, reject) {
-	var params = extend({ corpus: corpus_id, limit: 10 }, query);
-	conceptInsights.corpora.getRelatedDocuments(params, function (err, data) {
-		if (err) {
-			console.log('conceptualSearch', err);
-			return reject(err);
-		}
-		async.parallel(data.results.map(getPassagesAsync), function (err, documentsWithPassages) {
-			if (err) {
-				console.log('conceptualSearch:getPassagesAsync', err);
-				return reject(err);
-			}
-			data.results = documentsWithPassages;
-			console.log('conceptualSearch', data);
-			resolve(data);
-		});
+	var q = (query && (query.q || query.text || query.label)) || '';
+	if (!discovery || !discovery_project_id) {
+		var err = new Error('Discovery not configured. Set DISCOVERY_PROJECT_ID to enable conceptualSearch.');
+		console.log('conceptualSearch', err);
+		return reject(err);
+	}
+	var params = {
+		projectId: discovery_project_id,
+		naturalLanguageQuery: q,
+		count: 10,
+		highlight: true
+	};
+	discovery.query(params)
+	.then(function(response){
+		// response.result contains matching_results and other info
+		console.log('conceptualSearch', response.result);
+		resolve(response.result);
+	})
+	.catch(function(err){
+		console.log('conceptualSearch', err);
+		reject(err);
 	});
 };
 
 ThoughtAPIs.prototype.extractConceptMentions = function (query, resolve, reject) {
-	var params = extend({ graph: graph_id }, query);
-	conceptInsights.graphs.annotateText(params, function (err, results) {
-		if (err) {
-			console.log('extractConceptMentions', err);
-			return reject(err);
+	var text = (query && query.text) || query;
+	if (!text) {
+		var err = new Error('No text provided to extractConceptMentions');
+		console.log('extractConceptMentions', err);
+		return reject(err);
+	}
+	var params = {
+		text: text,
+		features: {
+			concepts: {},
+			entities: {}
 		}
-		console.log('extractConceptMentions', results);
-		resolve(results);
+	};
+	nlu.analyze(params)
+	.then(function(response){
+		console.log('extractConceptMentions', response.result);
+		resolve(response.result);
+	})
+	.catch(function(err){
+		console.log('extractConceptMentions', err);
+		reject(err);
 	});
 };
 
@@ -176,51 +248,6 @@ ThoughtAPIs.prototype.init = function () {
 		});
 	});
 };
-
-/**
- * Builds an Async function that get a document and call crop the passages on it.
- * @param  {[type]} doc The document
- * @return {[type]}     The document with the passages
- */
-var getPassagesAsync = function (doc) {
-	return function (callback) {
-		conceptInsights.corpora.getDocument(doc, function (err, fullDoc) {
-			if (err) { callback(err); return; }
-			doc = extend(doc, fullDoc);
-			doc.explanation_tags.forEach(crop.bind(this, doc));
-			delete doc.parts;
-			callback(null, doc);
-		});
-	};
-};
-
-/**
- * Crop the document text where the tag is.
- * @param  {Object} doc The document.
- * @param  {Object} tag The explanation tag.
- */
-var crop = function (doc, tag) {
-	var textIndexes = tag.text_index;
-	var documentText = doc.parts[tag.parts_index].data;
-
-	var anchor = documentText.substring(textIndexes[0], textIndexes[1]);
-	var left = Math.max(textIndexes[0] - 100, 0);
-	var right = Math.min(textIndexes[1] + 100, documentText.length);
-
-	var prefix = documentText.substring(left, textIndexes[0]);
-	var suffix = documentText.substring(textIndexes[1], right);
-
-	var firstSpace = prefix.indexOf(' ');
-	if ((firstSpace !== -1) && (firstSpace + 1 < prefix.length))
-		prefix = prefix.substring(firstSpace + 1);
-
-	var lastSpace = suffix.lastIndexOf(' ');
-	if (lastSpace !== -1)
-		suffix = suffix.substring(0, lastSpace);
-
-	tag.passage = '...' + prefix + '<b>' + anchor + '</b>' + suffix + '...';
-};
-
 
 // Simple route middleware to ensure user is authenticated.
 //   Use this route middleware on any resource that needs to be protected.  If
